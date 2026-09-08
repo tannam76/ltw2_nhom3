@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <style>
+        :root {
+            --bg: #f4efe9;
+            --panel: #ffffff;
+            --primary: #1e7770;
+            --primary-dark: #145b56;
+            --accent: #e65c3d;
+            --text: #17202a;
+            --muted: #68727d;
+            --border: #e7e0d8;
+            --shadow: 0 20px 50px rgba(23, 32, 42, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f8f4ee, #edf6f4);
+            color: var(--text);
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 48px;
+            background: rgba(255,255,255,0.8);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .welcome {
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .logout {
+            border: none;
+            background: var(--primary);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .logout:hover {
+            background: var(--primary-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 24px 64px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary), #2a8b82);
+            color: white;
+            border-radius: 28px;
+            padding: 42px 38px;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.1rem, 4vw, 4rem);
+            margin: 0 0 16px;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            margin: 0;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .hero-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.19);
+            border-radius: 22px;
+            padding: 24px;
+        }
+
+        .hero-card .label {
+            display: block;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 12px;
+        }
+
+        .hero-card strong {
+            display: block;
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+            gap: 22px;
+            margin-top: 32px;
+        }
+
+        .stat {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .stat .text {
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 760px) {
+            .topbar {
+                padding: 14px 20px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 28px 22px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">Course Management</div>
+        <div class="user-actions">
+            <span class="welcome" id="welcomeText">Xin chào</span>
+            <button class="logout" id="logoutButton" type="button">Đăng xuất</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div>
+                <h1>Chào mừng bạn quay lại!</h1>
+                <p>Hãy tiếp tục hành trình học tập của mình với các khóa học, tiến độ và nội dung được cá nhân hóa cho bạn.</p>
+            </div>
+            <div class="hero-card">
+                <span class="label">Tài khoản</span>
+                <strong id="userName">Người dùng</strong>
+                <span id="userEmail">email@example.com</span>
+            </div>
+        </section>
+
+        <section class="stats">
+            <article class="stat">
+                <div class="number">12</div>
+                <div class="text">Khóa học đang theo dõi</div>
+            </article>
+            <article class="stat">
+                <div class="number">86%</div>
+                <div class="text">Tiến độ học tập trung bình</div>
+            </article>
+            <article class="stat">
+                <div class="number">4</div>
+                <div class="text">Chứng chỉ sắp hoàn thành</div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('accessToken');
+        const welcomeText = document.querySelector('#welcomeText');
+        const userName = document.querySelector('#userName');
+        const userEmail = document.querySelector('#userEmail');
+
+        if (!token) {
+            window.location.href = '/index.html';
+        }
+
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    localStorage.removeItem('accessToken');
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const user = await response.json();
+                welcomeText.textContent = `Xin chào, ${user.fullName}`;
+                userName.textContent = user.fullName;
+                userEmail.textContent = user.email;
+            } catch (error) {
+                localStorage.removeItem('accessToken');
+                window.location.href = '/index.html';
+            }
+        }
+
+        document.querySelector('#logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('accessToken');
+            window.location.href = '/index.html';
+        });
+
+        loadCurrentUser();
+    </script>
+</body>
+</html>

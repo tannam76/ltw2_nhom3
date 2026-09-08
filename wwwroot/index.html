@@ -180,6 +180,10 @@
             userBox.style.display = 'block';
         }
 
+        if (localStorage.getItem('accessToken')) {
+            window.location.href = '/home.html';
+        }
+
         tabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.mode)));
         document.querySelector('#logoutButton').addEventListener('click', () => {
             localStorage.removeItem('accessToken');
@@ -209,7 +213,9 @@
                 if (mode === 'register') {
                     setMode('login');
                     document.querySelector('#password').value = '';
+                    return;
                 }
+                window.location.href = '/home.html';
             } catch (error) {
                 setMessage(error.message, 'error');
             }

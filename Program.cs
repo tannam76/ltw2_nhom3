@@ -32,6 +32,7 @@ app.UseHttpsRedirection();
 app.UseCors("Frontend");
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.MapGet("/home", () => Results.Redirect("/home.html"));
 app.MapControllers();
 
 app.Run();

@@ -22,12 +22,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapControllers();
-app.MapGet("/", () => Results.Ok(new
-{
-    name = "Course Management API",
-    status = "running",
-    endpoints = new[] { "/api/auth/register", "/api/auth/login", "/api/auth/me", "/openapi/v1.json" }
-}));
 
 app.Run();

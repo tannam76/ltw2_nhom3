@@ -12,6 +12,11 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Course> Courses { get; set; }
+    public DbSet<Lesson> Lessons { get; set; }
+    public DbSet<Quiz> Quizzes { get; set; }
+    public DbSet<QuizQuestion> QuizQuestions { get; set; }
+    public DbSet<QuizOption> QuizOptions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +46,64 @@ public class AppDbContext : DbContext
             entity.ToTable("Categories");
             entity.HasKey(c => c.Id);
             entity.Property(c => c.Name).IsRequired().HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<Course>(entity =>
+        {
+            entity.ToTable("Courses");
+            entity.HasKey(course => course.Id);
+            entity.Property(course => course.Title).IsRequired().HasMaxLength(200);
+            entity.Property(course => course.Description).IsRequired().HasMaxLength(2000);
+            entity.HasOne(course => course.Instructor)
+                .WithMany()
+                .HasForeignKey(course => course.InstructorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Lesson>(entity =>
+        {
+            entity.ToTable("Lessons");
+            entity.HasKey(lesson => lesson.Id);
+            entity.Property(lesson => lesson.Title).IsRequired().HasMaxLength(200);
+            entity.HasIndex(lesson => new { lesson.CourseId, lesson.Order }).IsUnique();
+            entity.HasOne(lesson => lesson.Course)
+                .WithMany(course => course.Lessons)
+                .HasForeignKey(lesson => lesson.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Quiz>(entity =>
+        {
+            entity.ToTable("Quizzes");
+            entity.HasKey(quiz => quiz.Id);
+            entity.Property(quiz => quiz.Title).IsRequired().HasMaxLength(200);
+            entity.HasOne(quiz => quiz.Lesson)
+                .WithMany(lesson => lesson.Quizzes)
+                .HasForeignKey(quiz => quiz.LessonId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<QuizQuestion>(entity =>
+        {
+            entity.ToTable("QuizQuestions");
+            entity.HasKey(question => question.Id);
+            entity.Property(question => question.Question).IsRequired().HasMaxLength(1000);
+            entity.HasOne(question => question.Quiz)
+                .WithMany(quiz => quiz.Questions)
+                .HasForeignKey(question => question.QuizId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<QuizOption>(entity =>
+        {
+            entity.ToTable("QuizOptions");
+            entity.HasKey(option => option.Id);
+            entity.Property(option => option.Text).IsRequired().HasMaxLength(500);
+            entity.HasIndex(option => new { option.QuizQuestionId, option.Order }).IsUnique();
+            entity.HasOne(option => option.QuizQuestion)
+                .WithMany(question => question.Options)
+                .HasForeignKey(option => option.QuizQuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

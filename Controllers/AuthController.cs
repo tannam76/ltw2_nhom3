@@ -9,11 +9,11 @@ namespace CourseManagement.Controllers;
 public class AuthController(IUserService userService) : ControllerBase
 {
 	[HttpPost("register")]
-	public ActionResult<AuthResponseDto> Register(RegisterDto request)
+	public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto request)
 	{
 		try
 		{
-			return Ok(userService.Register(request));
+			return Ok(await userService.Register(request));
 		}
 		catch (InvalidOperationException exception)
 		{
@@ -22,11 +22,11 @@ public class AuthController(IUserService userService) : ControllerBase
 	}
 
 	[HttpPost("login")]
-	public ActionResult<AuthResponseDto> Login(LoginDto request)
+	public async Task<ActionResult<AuthResponseDto>> Login(LoginDto request)
 	{
 		try
 		{
-			return Ok(userService.Login(request));
+			return Ok(await userService.Login(request));
 		}
 		catch (UnauthorizedAccessException exception)
 		{
@@ -35,10 +35,10 @@ public class AuthController(IUserService userService) : ControllerBase
 	}
 
 	[HttpGet("me")]
-	public ActionResult<UserSummaryDto> Me()
+	public async Task<ActionResult<UserSummaryDto>> Me()
 	{
 		var token = Request.Headers.Authorization.ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
-		var user = userService.GetCurrentUser(token);
+		var user = await userService.GetCurrentUser(token);
 		return user is null ? Unauthorized() : Ok(user);
 	}
 }

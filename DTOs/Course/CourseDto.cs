@@ -10,4 +10,5 @@ public class CourseDto
     public string InstructorName { get; set; } = string.Empty;
     public bool IsPublished { get; set; }
     public DateTime CreatedAt { get; set; }
+    public int LessonCount { get; set; }
 }

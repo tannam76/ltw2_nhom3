@@ -4,7 +4,7 @@ namespace CourseManagement.Services;
 
 public interface IUserService
 {
-	AuthResponseDto Register(RegisterDto request);
-	AuthResponseDto Login(LoginDto request);
-	UserSummaryDto? GetCurrentUser(string? accessToken);
+	Task<AuthResponseDto> Register(RegisterDto request);
+	Task<AuthResponseDto> Login(LoginDto request);
+	Task<UserSummaryDto?> GetCurrentUser(string? accessToken);
 }

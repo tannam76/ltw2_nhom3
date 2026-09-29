@@ -1,44 +1,48 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using CourseManagement.Data;
 using CourseManagement.DTOs.Auth;
 using CourseManagement.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseManagement.Services;
 
-public class UserService : IUserService
+public class UserService(AppDbContext db) : IUserService
 {
-	private readonly ConcurrentDictionary<string, User> usersByEmail = new(StringComparer.OrdinalIgnoreCase);
-	private readonly ConcurrentDictionary<string, User> usersByToken = new(StringComparer.Ordinal);
-	private int nextUserId;
+	// Lưu trữ token đơn giản trên bộ nhớ (chỉ dùng cho mục đích demo/học tập)
+	// Ánh xạ AccessToken -> UserId
+	private static readonly ConcurrentDictionary<string, int> sessions = new(StringComparer.Ordinal);
 
-	public AuthResponseDto Register(RegisterDto request)
+	public async Task<AuthResponseDto> Register(RegisterDto request)
 	{
 		var email = request.Email.Trim();
-		if (usersByEmail.ContainsKey(email))
+		
+		if (await db.Users.AnyAsync(u => u.Email == email))
 		{
 			throw new InvalidOperationException("Email is already registered.");
 		}
 
 		var user = new User
 		{
-			Id = Interlocked.Increment(ref nextUserId),
 			FullName = request.FullName.Trim(),
 			Email = email,
-			PasswordHash = HashPassword(request.Password)
+			PasswordHash = HashPassword(request.Password),
+			Role = "Student",
+			CreatedAt = DateTime.UtcNow
 		};
 
-		if (!usersByEmail.TryAdd(email, user))
-		{
-			throw new InvalidOperationException("Email is already registered.");
-		}
+		db.Users.Add(user);
+		await db.SaveChangesAsync();
 
 		return CreateResponse(user);
 	}
 
-	public AuthResponseDto Login(LoginDto request)
+	public async Task<AuthResponseDto> Login(LoginDto request)
 	{
 		var email = request.Email.Trim();
-		if (!usersByEmail.TryGetValue(email, out var user) || !VerifyPassword(request.Password, user.PasswordHash))
+		var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
+		
+		if (user == null || !VerifyPassword(request.Password, user.PasswordHash))
 		{
 			throw new UnauthorizedAccessException("Invalid email or password.");
 		}
@@ -46,17 +50,21 @@ public class UserService : IUserService
 		return CreateResponse(user);
 	}
 
-	public UserSummaryDto? GetCurrentUser(string? accessToken)
+	public async Task<UserSummaryDto?> GetCurrentUser(string? accessToken)
 	{
-		return accessToken is not null && usersByToken.TryGetValue(accessToken, out var user)
-			? ToSummary(user)
-			: null;
+		if (string.IsNullOrEmpty(accessToken) || !sessions.TryGetValue(accessToken, out var userId))
+		{
+			return null;
+		}
+
+		var user = await db.Users.FindAsync(userId);
+		return user != null ? ToSummary(user) : null;
 	}
 
 	private AuthResponseDto CreateResponse(User user)
 	{
 		var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-		usersByToken[token] = user;
+		sessions[token] = user.Id;
 
 		return new AuthResponseDto
 		{

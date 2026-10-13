@@ -1,105 +1,103 @@
-using System.Collections.Concurrent;
 using System.Security.Cryptography;
-using CourseManagement.Data;
-using CourseManagement.DTOs.Auth;
+using System.Text;
+using CourseManagement.DTOs.User;
 using CourseManagement.Models;
-using Microsoft.EntityFrameworkCore;
+using CourseManagement.Repositories;
 
 namespace CourseManagement.Services;
 
-public class UserService(AppDbContext db) : IUserService
+public class UserService : IUserService
 {
-	// Lưu trữ token đơn giản trên bộ nhớ (chỉ dùng cho mục đích demo/học tập)
-	// Ánh xạ AccessToken -> UserId
-	private static readonly ConcurrentDictionary<string, int> sessions = new(StringComparer.Ordinal);
+    private readonly IUserRepository _userRepo;
 
-	public async Task<AuthResponseDto> Register(RegisterDto request)
-	{
-		var email = request.Email.Trim();
-		
-		if (await db.Users.AnyAsync(u => u.Email == email))
-		{
-			throw new InvalidOperationException("Email is already registered.");
-		}
+    public UserService(IUserRepository userRepo)
+    {
+        _userRepo = userRepo;
+    }
 
-		var user = new User
-		{
-			FullName = request.FullName.Trim(),
-			Email = email,
-			PasswordHash = HashPassword(request.Password),
-			Role = "Student",
-			CreatedAt = DateTime.UtcNow
-		};
+    public async Task<List<UserDto>> GetAllAsync()
+    {
+        var users = await _userRepo.GetAllAsync();
+        return users.Select(MapToDto).ToList();
+    }
 
-		db.Users.Add(user);
-		await db.SaveChangesAsync();
+    public async Task<UserDto?> GetByIdAsync(int id)
+    {
+        var user = await _userRepo.GetByIdAsync(id);
+        return user == null ? null : MapToDto(user);
+    }
 
-		return CreateResponse(user);
-	}
+    public async Task<(bool IsSuccess, string Message, UserDto? Data)> CreateAsync(CreateUserDto request)
+    {
+        var existingUser = await _userRepo.GetByEmailAsync(request.Email);
+        if (existingUser != null)
+        {
+            return (false, "Email đã được sử dụng.", null);
+        }
 
-	public async Task<AuthResponseDto> Login(LoginDto request)
-	{
-		var email = request.Email.Trim();
-		var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
-		
-		if (user == null || !VerifyPassword(request.Password, user.PasswordHash))
-		{
-			throw new UnauthorizedAccessException("Invalid email or password.");
-		}
+        var newUser = new User
+        {
+            FullName = request.FullName,
+            Email    = request.Email,
+            PasswordHash = HashPassword(request.Password),
+            Role      = string.IsNullOrEmpty(request.Role) ? "Student" : request.Role,
+            CreatedAt = DateTime.UtcNow
+        };
 
-		return CreateResponse(user);
-	}
+        await _userRepo.AddAsync(newUser);
+        await _userRepo.SaveChangesAsync();
 
-	public async Task<UserSummaryDto?> GetCurrentUser(string? accessToken)
-	{
-		if (string.IsNullOrEmpty(accessToken) || !sessions.TryGetValue(accessToken, out var userId))
-		{
-			return null;
-		}
+        return (true, "Tạo người dùng thành công.", MapToDto(newUser));
+    }
 
-		var user = await db.Users.FindAsync(userId);
-		return user != null ? ToSummary(user) : null;
-	}
+    public async Task<(bool IsSuccess, string Message)> UpdateAsync(int id, UpdateUserDto request)
+    {
+        var user = await _userRepo.GetByIdAsync(id);
+        if (user == null)
+        {
+            return (false, $"Không tìm thấy người dùng có Id = {id}");
+        }
 
-	private AuthResponseDto CreateResponse(User user)
-	{
-		var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-		sessions[token] = user.Id;
+        if (!string.IsNullOrEmpty(request.FullName)) user.FullName = request.FullName;
+        if (!string.IsNullOrEmpty(request.Email))    user.Email    = request.Email;
+        if (!string.IsNullOrEmpty(request.Role))     user.Role     = request.Role;
 
-		return new AuthResponseDto
-		{
-			AccessToken = token,
-			ExpiresAt = DateTime.UtcNow.AddHours(8),
-			User = ToSummary(user)
-		};
-	}
+        _userRepo.Update(user);
+        await _userRepo.SaveChangesAsync();
 
-	private static UserSummaryDto ToSummary(User user) => new()
-	{
-		Id = user.Id,
-		FullName = user.FullName,
-		Email = user.Email,
-		Role = user.Role
-	};
+        return (true, $"Cập nhật thành công người dùng Id = {id}");
+    }
 
-	private static string HashPassword(string password)
-	{
-		var salt = RandomNumberGenerator.GetBytes(16);
-		var hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, 100_000, HashAlgorithmName.SHA256, 32);
-		return $"{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
-	}
+    public async Task<(bool IsSuccess, string Message)> DeleteAsync(int id)
+    {
+        var user = await _userRepo.GetByIdAsync(id);
+        if (user == null)
+        {
+            return (false, $"Không tìm thấy người dùng có Id = {id}");
+        }
 
-	private static bool VerifyPassword(string password, string storedValue)
-	{
-		var parts = storedValue.Split(':', 2);
-		if (parts.Length != 2)
-		{
-			return false;
-		}
+        _userRepo.Delete(user);
+        await _userRepo.SaveChangesAsync();
 
-		var salt = Convert.FromBase64String(parts[0]);
-		var expectedHash = Convert.FromBase64String(parts[1]);
-		var actualHash = Rfc2898DeriveBytes.Pbkdf2(password, salt, 100_000, HashAlgorithmName.SHA256, expectedHash.Length);
-		return CryptographicOperations.FixedTimeEquals(actualHash, expectedHash);
-	}
+        return (true, $"Đã xóa người dùng Id = {id}");
+    }
+
+    // ── Helper Methods ──────────────────────────────────────────────────────────
+
+    private static UserDto MapToDto(User user) => new()
+    {
+        Id        = user.Id,
+        FullName  = user.FullName,
+        Email     = user.Email,
+        Role      = user.Role,
+        CreatedAt = user.CreatedAt
+    };
+
+    private static string HashPassword(string password)
+    {
+        var salt = RandomNumberGenerator.GetBytes(16);
+        var hash = Rfc2898DeriveBytes.Pbkdf2(
+            password, salt, 100_000, HashAlgorithmName.SHA256, 32);
+        return $"{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
+    }
 }

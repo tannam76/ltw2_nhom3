@@ -1,4 +1,5 @@
 using CourseManagement.Data;
+using CourseManagement.Repositories;
 using CourseManagement.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,9 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader()
         .AllowAnyMethod());
 });
+// Đăng ký Repository
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+// Đăng ký Service
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();

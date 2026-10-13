@@ -391,6 +391,70 @@
             .content { padding: 20px; }
             .course-grid { grid-template-columns: 1fr; }
         }
+        /* ── Auto AI Question Box ── */
+        .auto-ai-box {
+            background: rgba(108,99,255,0.06);
+            border: 1px solid rgba(108,99,255,0.25);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+            transition: all .2s;
+        }
+        .auto-ai-box:hover {
+            border-color: rgba(108,99,255,0.45);
+            box-shadow: 0 4px 16px rgba(108,99,255,0.1);
+        }
+        .modal-lg { width: min(100%, 780px) !important; }
+        .question-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: border-color .2s;
+        }
+        .question-card:hover { border-color: rgba(108,99,255,0.4); }
+        .question-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .badge-type {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .badge-mc { background: rgba(16,185,129,0.18); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-essay { background: rgba(167,139,250,0.18); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.3); }
+        .question-text { font-size: 0.9rem; font-weight: 600; line-height: 1.5; margin-bottom: 12px; }
+        .option-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        @media(max-width: 600px) { .option-list { grid-template-columns: 1fr; } }
+        .option-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .option-item.correct {
+            background: rgba(16,185,129,0.12);
+            border-color: rgba(16,185,129,0.4);
+            color: #6ee7b7;
+            font-weight: 600;
+        }
+        .option-letter {
+            width: 20px; height: 20px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.08); flex-shrink: 0;
+        }
+        .option-item.correct .option-letter {
+            background: var(--green); color: black;
+        }
     </style>
 </head>
 <body>
@@ -595,9 +659,45 @@
                         <input type="text" id="lessonTitle" placeholder="VD: Bài 1 – Giới thiệu Python" required maxlength="200">
                     </div>
                     <div class="form-group">
-                        <label for="lessonContent">Nội dung</label>
-                        <textarea id="lessonContent" placeholder="Nội dung bài học..."></textarea>
+                        <label for="lessonContent">Nội dung bài học *</label>
+                        <textarea id="lessonContent" placeholder="Nhập nội dung bài học (các khái niệm, định nghĩa, gạch đầu dòng, ví dụ...)..."></textarea>
                     </div>
+
+                    <!-- AI Auto Question Generation Box -->
+                    <div class="auto-ai-box" id="autoQuestionBox">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+                            <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;font-weight:700;color:var(--primary-light);cursor:pointer;margin:0">
+                                <input type="checkbox" id="lessonAutoGenerate" onchange="toggleAutoQuestionOptions()" style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer">
+                                🤖 Tự động tạo câu hỏi hỏi đáp từ nội dung này
+                            </label>
+                            <button type="button" class="btn btn-ghost btn-sm" id="btnPreviewQuestions" onclick="previewQuestionsFromContent()" style="font-size:0.75rem">
+                                ⚡ Xem trước câu hỏi gợi ý
+                            </button>
+                        </div>
+                        <div id="autoQuestionOptions" style="display:none;padding-top:12px;border-top:1px dashed var(--border)">
+                            <div class="form-row">
+                                <div class="form-group" style="margin-bottom:0">
+                                    <label style="font-size:0.72rem">Số lượng câu hỏi</label>
+                                    <select id="lessonAutoCount">
+                                        <option value="2">2 câu hỏi</option>
+                                        <option value="3" selected>3 câu hỏi</option>
+                                        <option value="4">4 câu hỏi</option>
+                                        <option value="5">5 câu hỏi</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0">
+                                    <label style="font-size:0.72rem">Loại câu hỏi</label>
+                                    <select id="lessonAutoType">
+                                        <option value="Both" selected>Cả Tự luận & Trắc nghiệm</option>
+                                        <option value="MultipleChoice">Chỉ Trắc nghiệm</option>
+                                        <option value="Essay">Chỉ Tự luận</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="previewQuestionBox" style="display:none;margin-top:12px;padding:12px;background:rgba(0,0,0,0.25);border-radius:10px"></div>
+                        </div>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="lessonVideo">URL video</label>
@@ -634,6 +734,121 @@
                 <div class="modal-actions" style="justify-content:center;margin-top:28px">
                     <button class="btn btn-ghost" onclick="closeConfirmModal()">Hủy</button>
                     <button class="btn btn-danger" id="confirmOkBtn" onclick="executeConfirm()">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== MODAL: Quản lý & Tạo câu hỏi hỏi đáp của Bài học ====== -->
+    <div class="modal-overlay panel-hidden" id="questionsModal">
+        <div class="modal modal-lg">
+            <div class="modal-head">
+                <div>
+                    <h3 id="questionsModalTitle">Hỏi đáp của bài học</h3>
+                    <small id="questionsModalSub" style="color:var(--muted);font-size:0.78rem">Quản lý câu hỏi tự luận & trắc nghiệm</small>
+                </div>
+                <button class="modal-close" onclick="closeQuestionsModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Toolbar -->
+                <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+                    <button class="btn btn-primary btn-sm" onclick="toggleAutoGenerateFormInModal()">
+                        ⚡ Tự động tạo câu hỏi từ nội dung
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="toggleManualQuestionFormInModal()">
+                        + Thêm câu hỏi thủ công
+                    </button>
+                </div>
+
+                <!-- Form Tự động sinh câu hỏi nhanh ngay trong Modal -->
+                <div id="autoGenerateInModalBox" class="auto-ai-box" style="display:none">
+                    <div style="font-weight:700;font-size:0.9rem;color:var(--primary-light);margin-bottom:8px">
+                        🤖 Tự động tạo câu hỏi từ nội dung bài học này
+                    </div>
+                    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px">
+                        Hệ thống sẽ quét văn bản bài học để tự động trích xuất các câu hỏi tự luận và trắc nghiệm tương ứng.
+                    </p>
+                    <div class="form-row">
+                        <div class="form-group" style="margin-bottom:0">
+                            <label style="font-size:0.72rem">Số lượng câu hỏi</label>
+                            <select id="modalAutoCount">
+                                <option value="2">2 câu hỏi</option>
+                                <option value="3" selected>3 câu hỏi</option>
+                                <option value="4">4 câu hỏi</option>
+                                <option value="5">5 câu hỏi</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0">
+                            <label style="font-size:0.72rem">Loại câu hỏi</label>
+                            <select id="modalAutoType">
+                                <option value="Both" selected>Cả Tự luận & Trắc nghiệm</option>
+                                <option value="MultipleChoice">Chỉ Trắc nghiệm</option>
+                                <option value="Essay">Chỉ Tự luận</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAutoGenerateFormInModal()">Hủy</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="btnRunAutoInModal" onclick="executeAutoGenerateInModal()">Tạo ngay & Lưu</button>
+                    </div>
+                </div>
+
+                <!-- Form Thêm câu hỏi thủ công trong Modal -->
+                <div id="manualQuestionFormBox" class="auto-ai-box" style="display:none">
+                    <div style="font-weight:700;font-size:0.9rem;color:var(--text);margin-bottom:12px">
+                        ✍️ Thêm câu hỏi thủ công
+                    </div>
+                    <form onsubmit="submitManualQuestion(event)">
+                        <div class="form-group">
+                            <label>Loại câu hỏi *</label>
+                            <div style="display:flex;gap:16px;margin-top:4px">
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.85rem">
+                                    <input type="radio" name="manualQType" value="MultipleChoice" checked onchange="toggleManualQuestionType()">
+                                    🔘 Trắc nghiệm
+                                </label>
+                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.85rem">
+                                    <input type="radio" name="manualQType" value="Essay" onchange="toggleManualQuestionType()">
+                                    📝 Tự luận
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="manualQuestionText">Nội dung câu hỏi *</label>
+                            <textarea id="manualQuestionText" placeholder="Nhập nội dung câu hỏi..." required style="min-height:70px"></textarea>
+                        </div>
+                        <div id="manualOptionsArea">
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">
+                                Các phương án lựa chọn (chọn nút tròn để đánh dấu đáp án đúng)
+                            </label>
+                            <div style="display:flex;flex-direction:column;gap:8px">
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <input type="radio" name="correctOptionIdx" value="0" checked title="Đánh dấu là đáp án đúng">
+                                    <input type="text" id="opt0" placeholder="Phương án A" required style="flex:1">
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <input type="radio" name="correctOptionIdx" value="1" title="Đánh dấu là đáp án đúng">
+                                    <input type="text" id="opt1" placeholder="Phương án B" required style="flex:1">
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <input type="radio" name="correctOptionIdx" value="2" title="Đánh dấu là đáp án đúng">
+                                    <input type="text" id="opt2" placeholder="Phương án C (tùy chọn)" style="flex:1">
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <input type="radio" name="correctOptionIdx" value="3" title="Đánh dấu là đáp án đúng">
+                                    <input type="text" id="opt3" placeholder="Phương án D (tùy chọn)" style="flex:1">
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="toggleManualQuestionFormInModal()">Hủy</button>
+                            <button type="submit" class="btn btn-primary btn-sm" id="btnSaveManualQuestion">Lưu câu hỏi</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Danh sách câu hỏi hiện tại -->
+                <div id="questionsListContainer">
+                    <div class="loader"><div class="spinner"></div></div>
                 </div>
             </div>
         </div>
@@ -922,10 +1137,12 @@
                 <div class="lesson-num">${l.order}</div>
                 <div class="lesson-info">
                     <div class="title">${escHtml(l.title)}</div>
-                    <div class="meta">${l.videoUrl ? '🎬 Có video' : '📝 Chỉ văn bản'}</div>
+                    <div class="meta">${l.videoUrl ? '🎬 Có video' : '📝 Chỉ văn bản'} • ❓ <b style="color:var(--primary-light)">${l.questionCount || 0}</b> câu hỏi</div>
                 </div>
                 <span class="lesson-badge ${l.isPublished ? 'badge-published' : 'badge-draft'}">${l.isPublished ? 'Đã xuất bản' : 'Nháp'}</span>
-                <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditLesson(${l.id})">✏️</button>
+                <button class="btn btn-sm" style="background:rgba(108,99,255,.15);color:var(--primary-light);border:1px solid rgba(108,99,255,.3)" onclick="openQuestionsModal(${l.id}, '${escHtml(l.title)}')" title="Quản lý câu hỏi hỏi đáp">❓ Hỏi đáp (${l.questionCount || 0})</button>
+                <button class="btn btn-sm btn-ghost" onclick="quickAutoGenerate(${l.id}, '${escHtml(l.title)}')" title="Tự động tạo câu hỏi từ nội dung bài học">⚡ Tạo câu hỏi</button>
+                <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditLesson(${l.id})" title="Chỉnh sửa">✏️</button>
                 <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('lesson', ${l.id}, '${escHtml(l.title)}')">🗑</button>
             </div>`).join('');
 
@@ -949,6 +1166,11 @@
         document.getElementById('lessonFormError').textContent = '';
         document.getElementById('lessonPublishedGroup').style.display = 'none';
 
+        document.getElementById('lessonAutoGenerate').checked = false;
+        document.getElementById('autoQuestionOptions').style.display = 'none';
+        document.getElementById('previewQuestionBox').style.display = 'none';
+        document.getElementById('previewQuestionBox').innerHTML = '';
+
         const sel = document.getElementById('lessonCourse');
         sel.innerHTML = '<option value="">-- Chọn khóa học --</option>' +
             allCourses.map(c => `<option value="${c.id}" ${c.id == presetCourseId ? 'selected' : ''}>${escHtml(c.title)}</option>`).join('');
@@ -963,6 +1185,11 @@
             document.getElementById('lessonModalTitle').textContent = 'Chỉnh sửa bài học';
             document.getElementById('lessonSubmitBtn').textContent = 'Cập nhật';
             document.getElementById('lessonPublishedGroup').style.display = 'block';
+
+            document.getElementById('lessonAutoGenerate').checked = false;
+            document.getElementById('autoQuestionOptions').style.display = 'none';
+            document.getElementById('previewQuestionBox').style.display = 'none';
+            document.getElementById('previewQuestionBox').innerHTML = '';
 
             const sel = document.getElementById('lessonCourse');
             sel.innerHTML = '<option value="">-- Chọn khóa học --</option>' +
@@ -995,21 +1222,29 @@
         btn.textContent = 'Đang lưu...';
 
         try {
+            const autoGen = document.getElementById('lessonAutoGenerate').checked;
             const body = {
                 courseId: parseInt(document.getElementById('lessonCourse').value),
                 title: document.getElementById('lessonTitle').value,
                 content: document.getElementById('lessonContent').value || null,
                 videoUrl: document.getElementById('lessonVideo').value || null,
                 order: parseInt(document.getElementById('lessonOrder').value) || 0,
-                isPublished: document.getElementById('lessonPublished').checked
+                isPublished: document.getElementById('lessonPublished').checked,
+                autoGenerateQuestions: autoGen,
+                autoQuestionCount: parseInt(document.getElementById('lessonAutoCount').value) || 3,
+                autoQuestionType: document.getElementById('lessonAutoType').value || 'Both'
             };
 
             if (editingLessonId) {
                 await api('PUT', `/api/lessons/${editingLessonId}`, body);
                 toast('Cập nhật bài học thành công!', 'success');
             } else {
-                await api('POST', '/api/lessons', body);
-                toast('Thêm bài học thành công!', 'success');
+                const res = await api('POST', '/api/lessons', body);
+                if (autoGen && res && res.questionCount > 0) {
+                    toast(`Thêm bài học và đã tự động tạo ${res.questionCount} câu hỏi hỏi đáp!`, 'success');
+                } else {
+                    toast('Thêm bài học thành công!', 'success');
+                }
             }
 
             closeLessonModal();
@@ -1020,6 +1255,249 @@
         } finally {
             btn.disabled = false;
             btn.textContent = editingLessonId ? 'Cập nhật' : 'Thêm bài học';
+        }
+    }
+
+    // ─── Lesson Question Auto Generation & Management ────────
+    let activeQuestionsLessonId = null;
+    let activeQuestionsLessonTitle = '';
+
+    function toggleAutoQuestionOptions() {
+        const checked = document.getElementById('lessonAutoGenerate').checked;
+        document.getElementById('autoQuestionOptions').style.display = checked ? 'block' : 'none';
+    }
+
+    async function previewQuestionsFromContent() {
+        const content = document.getElementById('lessonContent').value.trim();
+        const title = document.getElementById('lessonTitle').value.trim() || 'Bài học';
+        const box = document.getElementById('previewQuestionBox');
+        if (!content) {
+            toast('Vui lòng nhập nội dung bài học trước để xem trước câu hỏi gợi ý!', 'error');
+            return;
+        }
+
+        const count = parseInt(document.getElementById('lessonAutoCount').value) || 3;
+        const type = document.getElementById('lessonAutoType').value || 'Both';
+
+        box.style.display = 'block';
+        box.innerHTML = `<div style="text-align:center;padding:12px;color:var(--muted)">🤖 Đang phân tích nội dung và tạo câu hỏi gợi ý...</div>`;
+
+        try {
+            const list = await api('POST', '/api/lessons/preview-questions', { title, content, count, type });
+            if (!list || !list.length) {
+                box.innerHTML = `<div style="color:var(--accent);font-size:0.8rem">Không thể trích xuất câu hỏi từ nội dung này.</div>`;
+                return;
+            }
+
+            const html = list.map((q, i) => `
+                <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                        <span class="badge-type ${q.type==='MultipleChoice'?'badge-mc':'badge-essay'}">${q.type==='MultipleChoice'?'Trắc nghiệm':'Tự luận'}</span>
+                        <strong style="font-size:0.82rem">Câu ${i+1}: ${escHtml(q.questionText)}</strong>
+                    </div>
+                    ${q.type === 'MultipleChoice' ? `
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+                            ${q.options.map((o, idx) => `
+                                <div style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:${o.isCorrect?'rgba(16,185,129,0.15)':'transparent'};border:1px solid ${o.isCorrect?'rgba(16,185,129,0.4)':'var(--border)'};color:${o.isCorrect?'#6ee7b7':'var(--muted)'}">
+                                    <b>${String.fromCharCode(65+idx)}.</b> ${escHtml(o.text)} ${o.isCorrect?'✓':''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            box.innerHTML = `<div style="font-size:0.78rem;font-weight:700;color:var(--primary-light);margin-bottom:8px">✨ Gợi ý ${list.length} câu hỏi tự động:</div>` + html;
+        } catch(e) {
+            box.innerHTML = `<div style="color:var(--red);font-size:0.8rem">Lỗi: ${escHtml(e.message)}</div>`;
+        }
+    }
+
+    async function openQuestionsModal(lessonId, lessonTitle) {
+        activeQuestionsLessonId = lessonId;
+        activeQuestionsLessonTitle = lessonTitle;
+        document.getElementById('questionsModalTitle').textContent = `Hỏi đáp: ${lessonTitle}`;
+        document.getElementById('autoGenerateInModalBox').style.display = 'none';
+        document.getElementById('manualQuestionFormBox').style.display = 'none';
+        document.getElementById('questionsModal').classList.remove('panel-hidden');
+        await loadQuestionsForModal(lessonId);
+    }
+
+    function closeQuestionsModal() {
+        document.getElementById('questionsModal').classList.add('panel-hidden');
+        activeQuestionsLessonId = null;
+    }
+
+    async function loadQuestionsForModal(lessonId) {
+        const cont = document.getElementById('questionsListContainer');
+        cont.innerHTML = `<div class="loader"><div class="spinner"></div></div>`;
+        try {
+            const questions = await api('GET', `/api/lessons/${lessonId}/questions`);
+            if (!questions || !questions.length) {
+                cont.innerHTML = emptyState('❓', 'Chưa có câu hỏi nào', 'Hãy bấm "Tự động tạo câu hỏi" hoặc "Thêm câu hỏi thủ công" ở trên!');
+                return;
+            }
+
+            cont.innerHTML = questions.map((q, idx) => `
+                <div class="question-card">
+                    <div class="question-head">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="badge-type ${q.type==='MultipleChoice'?'badge-mc':'badge-essay'}">${q.type==='MultipleChoice'?'🔘 Trắc nghiệm':'📝 Tự luận'}</span>
+                            <span style="font-size:0.75rem;color:var(--muted)">#${q.order || (idx+1)}</span>
+                        </div>
+                        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteQuestion(${q.id})" title="Xóa câu hỏi">🗑</button>
+                    </div>
+                    <div class="question-text">${escHtml(q.questionText)}</div>
+                    ${q.type === 'MultipleChoice' ? `
+                        <div class="option-list">
+                            ${(q.options || []).map((o, oIdx) => `
+                                <div class="option-item ${o.isCorrect ? 'correct' : ''}">
+                                    <span class="option-letter">${String.fromCharCode(65 + oIdx)}</span>
+                                    <span>${escHtml(o.text)}</span>
+                                    ${o.isCorrect ? '<span style="margin-left:auto;font-size:0.75rem;color:var(--green)">✓ Đáp án đúng</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : `
+                        <div style="font-size:0.78rem;color:var(--muted);background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:8px;padding:8px 12px">
+                            ✍️ Học viên sẽ nhập câu trả lời tự luận trực tiếp khi học bài này.
+                        </div>
+                    `}
+                </div>
+            `).join('');
+        } catch(e) {
+            cont.innerHTML = emptyState('⚠️', 'Lỗi tải câu hỏi', e.message);
+        }
+    }
+
+    async function quickAutoGenerate(lessonId, lessonTitle) {
+        if (!confirm(`Bạn có muốn tự động tạo câu hỏi từ nội dung bài học "${lessonTitle}" không?`)) return;
+        try {
+            toast('Đang phân tích nội dung và tạo câu hỏi...', 'info');
+            const res = await api('POST', `/api/lessons/${lessonId}/auto-generate-questions`, {
+                count: 3,
+                type: 'Both',
+                saveToLesson: true
+            });
+            toast(`Đã tự động tạo thành công ${res.length} câu hỏi!`, 'success');
+            await loadLessonsForCourse();
+            openQuestionsModal(lessonId, lessonTitle);
+        } catch(e) {
+            toast(e.message, 'error');
+        }
+    }
+
+    function toggleAutoGenerateFormInModal() {
+        const box = document.getElementById('autoGenerateInModalBox');
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        document.getElementById('manualQuestionFormBox').style.display = 'none';
+    }
+
+    function toggleManualQuestionFormInModal() {
+        const box = document.getElementById('manualQuestionFormBox');
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        document.getElementById('autoGenerateInModalBox').style.display = 'none';
+    }
+
+    function toggleManualQuestionType() {
+        const type = document.querySelector('input[name="manualQType"]:checked').value;
+        document.getElementById('manualOptionsArea').style.display = type === 'MultipleChoice' ? 'block' : 'none';
+    }
+
+    async function executeAutoGenerateInModal() {
+        const btn = document.getElementById('btnRunAutoInModal');
+        btn.disabled = true;
+        btn.textContent = 'Đang tạo...';
+
+        const count = parseInt(document.getElementById('modalAutoCount').value) || 3;
+        const type = document.getElementById('modalAutoType').value || 'Both';
+
+        try {
+            const res = await api('POST', `/api/lessons/${activeQuestionsLessonId}/auto-generate-questions`, {
+                count,
+                type,
+                saveToLesson: true
+            });
+            toast(`Đã tự động tạo ${res.length} câu hỏi mới!`, 'success');
+            document.getElementById('autoGenerateInModalBox').style.display = 'none';
+            await loadQuestionsForModal(activeQuestionsLessonId);
+            await loadLessonsForCourse();
+        } catch(e) {
+            toast(e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Tạo ngay & Lưu';
+        }
+    }
+
+    async function submitManualQuestion(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSaveManualQuestion');
+        btn.disabled = true;
+        btn.textContent = 'Đang lưu...';
+
+        const qType = document.querySelector('input[name="manualQType"]:checked').value;
+        const qText = document.getElementById('manualQuestionText').value.trim();
+
+        try {
+            const body = {
+                lessonId: activeQuestionsLessonId,
+                creatorId: currentUser ? currentUser.id : 1,
+                questionText: qText,
+                type: qType,
+                options: []
+            };
+
+            if (qType === 'MultipleChoice') {
+                const checkedIdx = parseInt(document.querySelector('input[name="correctOptionIdx"]:checked').value);
+                const optTexts = [
+                    document.getElementById('opt0').value.trim(),
+                    document.getElementById('opt1').value.trim(),
+                    document.getElementById('opt2').value.trim(),
+                    document.getElementById('opt3').value.trim()
+                ].filter(t => t.length > 0);
+
+                if (optTexts.length < 2) {
+                    throw new Error('Câu trắc nghiệm phải có ít nhất 2 phương án (A và B).');
+                }
+
+                body.options = optTexts.map((text, i) => ({
+                    text,
+                    isCorrect: (i === checkedIdx),
+                    order: i + 1
+                }));
+            }
+
+            await api('POST', '/api/lesson-questions', body);
+            toast('Thêm câu hỏi thành công!', 'success');
+
+            // Reset form
+            document.getElementById('manualQuestionText').value = '';
+            document.getElementById('opt0').value = '';
+            document.getElementById('opt1').value = '';
+            document.getElementById('opt2').value = '';
+            document.getElementById('opt3').value = '';
+            document.getElementById('manualQuestionFormBox').style.display = 'none';
+
+            await loadQuestionsForModal(activeQuestionsLessonId);
+            await loadLessonsForCourse();
+        } catch(ex) {
+            toast(ex.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Lưu câu hỏi';
+        }
+    }
+
+    async function deleteQuestion(questionId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')) return;
+        try {
+            await api('DELETE', `/api/lesson-questions/${questionId}`);
+            toast('Đã xóa câu hỏi!', 'success');
+            await loadQuestionsForModal(activeQuestionsLessonId);
+            await loadLessonsForCourse();
+        } catch(e) {
+            toast(e.message, 'error');
         }
     }
 
@@ -1111,12 +1589,13 @@
     }
 
     // Close modals on overlay click
-    ['courseModal','lessonModal','confirmModal'].forEach(id => {
+    ['courseModal','lessonModal','confirmModal','questionsModal'].forEach(id => {
         document.getElementById(id).addEventListener('click', function(e) {
             if (e.target === this) {
                 if (id === 'courseModal') closeCourseModal();
                 if (id === 'lessonModal') closeLessonModal();
                 if (id === 'confirmModal') closeConfirmModal();
+                if (id === 'questionsModal') closeQuestionsModal();
             }
         });
     });

@@ -61,11 +61,10 @@ builder.Services.AddSwaggerGen(options =>
     };
     options.AddSecurityDefinition("Bearer", scheme);
 
-    var requirement = new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(doc => new OpenApiSecurityRequirement
     {
-        { new OpenApiSecuritySchemeReference("Bearer", null), new List<string>() }
-    };
-    options.AddSecurityRequirement(_ => requirement);
+        { new OpenApiSecuritySchemeReference("Bearer", doc), new List<string>() }
+    });
 });
 
 builder.Services.AddCors(options =>
@@ -103,6 +102,7 @@ app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapGet("/home", () => Results.Redirect("/home.html"));
+app.MapGet("/study", () => Results.Redirect("/study.html"));
 app.MapControllers();
 
 app.Run();

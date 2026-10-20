@@ -455,6 +455,264 @@
         .option-item.correct .option-letter {
             background: var(--green); color: black;
         }
+
+        /* ── Study Panel ── */
+        .study-layout {
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            height: calc(100vh - 58px - 60px);
+            min-height: 500px;
+            margin: -28px -32px;
+        }
+        .study-sidebar {
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .study-sidebar-head {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.7rem; font-weight: 700;
+            color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+        }
+        .study-lesson-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 11px 16px; cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all .15s;
+        }
+        .study-lesson-item:hover { background: var(--surface); }
+        .study-lesson-item.sl-active {
+            background: rgba(108,99,255,.1);
+            border-left-color: var(--primary);
+        }
+        .sl-num {
+            width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+            background: var(--surface2); display: flex; align-items: center;
+            justify-content: center; font-size: 0.68rem; font-weight: 700;
+            color: var(--muted); margin-top: 1px; transition: all .2s;
+        }
+        .study-lesson-item.sl-active .sl-num { background: var(--primary); color: #fff; }
+        .study-lesson-item.sl-done .sl-num   { background: var(--green);   color: #000; }
+        .sl-info { flex: 1; min-width: 0; }
+        .sl-title {
+            font-size: 0.8rem; font-weight: 500; line-height: 1.35;
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .study-lesson-item.sl-active .sl-title { color: var(--primary-light); font-weight: 600; }
+        .sl-meta { font-size: 0.67rem; color: var(--muted); margin-top: 2px; display: flex; gap: 6px; }
+        .sl-check { font-size: 0.8rem; flex-shrink: 0; }
+        .study-main { overflow-y: auto; }
+        .study-content { max-width: 780px; margin: 0 auto; padding: 28px 28px 48px; }
+
+        /* Study progress bar in topbar */
+        .study-prog-bar-wrap { display: flex; align-items: center; gap: 8px; }
+        .study-prog-bar {
+            width: 110px; height: 6px;
+            background: var(--surface2); border-radius: 99px; overflow: hidden;
+        }
+        .study-prog-fill {
+            height: 100%; background: var(--primary);
+            border-radius: 99px; transition: width .4s;
+        }
+        .study-prog-pct { font-size: 0.75rem; font-weight: 600; color: var(--primary-light); }
+
+        /* study content blocks */
+        .s-header { margin-bottom: 22px; }
+        .s-order-badge {
+            display: inline-block; padding: 3px 9px; border-radius: 99px;
+            background: rgba(108,99,255,.2); color: var(--primary-light);
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .8px; margin-bottom: 8px;
+        }
+        .s-header h2 { font-size: 1.4rem; font-weight: 800; line-height: 1.25; margin-bottom: 8px; }
+        .s-meta-row { display: flex; gap: 14px; font-size: 0.77rem; color: var(--muted); flex-wrap: wrap; }
+        .s-meta-row span { display: flex; align-items: center; gap: 4px; }
+
+        /* video */
+        .s-video {
+            border-radius: 12px; overflow: hidden; background: #000;
+            margin-bottom: 22px; aspect-ratio: 16/9;
+        }
+        .s-video iframe { width: 100%; height: 100%; border: none; }
+        .s-no-video {
+            height: 100%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: var(--surface); color: var(--muted); gap: 8px; font-size: 0.85rem;
+        }
+
+        /* content card */
+        .s-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 22px; margin-bottom: 22px;
+        }
+        .s-card-title {
+            font-size: 0.72rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+        }
+        .s-body { font-size: 0.9rem; line-height: 1.8; color: #cdd9e5; white-space: pre-wrap; word-break: break-word; }
+
+        /* complete */
+        .s-complete-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+        .s-btn-complete {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 10px 22px; border-radius: 9px; border: none;
+            font-size: 0.87rem; font-weight: 700; cursor: pointer;
+            transition: all .2s; font-family: 'Inter', sans-serif;
+        }
+        .s-btn-complete.s-not-done { background: var(--primary); color: #fff; }
+        .s-btn-complete.s-not-done:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(108,99,255,.4); }
+        .s-btn-complete.s-done { background: rgba(16,185,129,.15); color: var(--green); border: 1.5px solid rgba(16,185,129,.3); cursor: default; }
+        .s-hint { font-size: 0.77rem; color: var(--muted); }
+        .s-btn-undo {
+            padding: 7px 14px; background: transparent; border: 1px solid var(--border);
+            border-radius: 8px; color: var(--muted); cursor: pointer;
+            font-size: 0.77rem; font-family: 'Inter', sans-serif; transition: all .2s;
+        }
+        .s-btn-undo:hover { background: var(--surface2); color: var(--text); }
+
+        /* prev/next nav */
+        .s-nav-row { display: flex; gap: 10px; margin-bottom: 28px; }
+        .s-btn-nav {
+            flex: 1; padding: 10px 14px; border-radius: 9px;
+            border: 1px solid var(--border); background: var(--surface);
+            color: var(--text); font-size: 0.78rem; font-weight: 600;
+            cursor: pointer; transition: all .2s; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .s-btn-nav:hover:not(:disabled) { background: var(--surface2); border-color: var(--primary); color: var(--primary-light); }
+        .s-btn-nav:disabled { opacity: .35; cursor: not-allowed; }
+        .s-btn-nav.s-next { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .s-btn-nav.s-next:hover:not(:disabled) { background: var(--primary-dark); }
+
+        /* progress stats */
+        .s-prog-panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 18px; margin-bottom: 22px;
+        }
+        .s-prog-title { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; }
+        .s-prog-bar-full { height: 7px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+        .s-prog-bar-inner { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--primary), var(--primary-light)); transition: width .5s; }
+        .s-prog-nums { display: flex; gap: 20px; flex-wrap: wrap; }
+        .s-pstat { text-align: center; }
+        .s-pstat .sv { font-size: 1.4rem; font-weight: 800; }
+        .s-pstat .sl { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+        .s-pstat.green .sv { color: var(--green); }
+        .s-pstat.purple .sv { color: var(--primary-light); }
+
+        /* questions */
+        .s-questions { margin-top: 28px; }
+        .s-q-title { font-size: 0.92rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .s-q-badge { padding: 2px 9px; border-radius: 99px; font-size: 0.68rem; font-weight: 700; background: rgba(108,99,255,.2); color: var(--primary-light); }
+        .s-q-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; margin-bottom: 16px; overflow: hidden; transition: border-color .2s;
+        }
+        .s-q-card.sq-correct { border-color: rgba(16,185,129,.35); }
+        .s-q-card.sq-wrong   { border-color: rgba(239,68,68,.35); }
+        .s-q-card.sq-pending { border-color: rgba(245,158,11,.35); }
+        .s-q-head {
+            padding: 14px 16px 12px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: flex-start; gap: 10px;
+        }
+        .s-q-num {
+            width: 25px; height: 25px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700;
+            background: var(--surface2); color: var(--muted); transition: all .2s;
+        }
+        .s-q-card.sq-correct .s-q-num { background: var(--green); color: #000; }
+        .s-q-card.sq-wrong   .s-q-num { background: var(--red);   color: #fff; }
+        .s-q-card.sq-pending .s-q-num { background: var(--accent); color: #000; }
+        .s-q-type {
+            padding: 2px 7px; border-radius: 99px; font-size: 0.62rem;
+            font-weight: 700; flex-shrink: 0; margin-top: 2px;
+        }
+        .s-q-mc-badge   { background: rgba(108,99,255,.15); color: var(--primary-light); }
+        .s-q-es-badge   { background: rgba(245,158,11,.15); color: var(--accent); }
+        .s-q-text { font-size: 0.88rem; font-weight: 600; line-height: 1.5; flex: 1; }
+        .s-q-body { padding: 14px 16px; }
+
+        /* MCQ options */
+        .s-opts { display: flex; flex-direction: column; gap: 8px; }
+        .s-opt {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px; border-radius: 8px;
+            border: 1.5px solid var(--border); background: var(--surface2);
+            cursor: pointer; transition: all .18s; font-family: 'Inter', sans-serif;
+            font-size: 0.83rem; color: var(--text); width: 100%; text-align: left;
+        }
+        .s-opt:hover:not(:disabled) { border-color: var(--primary); background: rgba(108,99,255,.07); }
+        .s-opt.s-selected { border-color: var(--primary); background: rgba(108,99,255,.14); }
+        .s-opt.s-correct  { border-color: var(--green); background: rgba(16,185,129,.12); color: var(--green); }
+        .s-opt.s-wrong    { border-color: var(--red);   background: rgba(239,68,68,.12);   color: var(--red); }
+        .s-opt:disabled   { cursor: default; }
+        .s-opt-letter {
+            width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700; background: rgba(255,255,255,.07);
+        }
+        .s-opt.s-correct .s-opt-letter { background: var(--green); color: #000; }
+        .s-opt.s-wrong   .s-opt-letter { background: var(--red);   color: #fff; }
+        .s-opt-suf { margin-left: auto; font-size: 0.9rem; }
+
+        /* essay */
+        .s-essay {
+            width: 100%; min-height: 110px; resize: vertical;
+            background: var(--surface2); border: 1.5px solid var(--border);
+            border-radius: 8px; padding: 10px 12px; color: var(--text);
+            font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            outline: none; transition: border-color .2s; line-height: 1.6;
+        }
+        .s-essay:focus { border-color: var(--primary); }
+
+        /* submit */
+        .s-btn-submit {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; border-radius: 8px; border: none;
+            background: var(--primary); color: #fff;
+            font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            transition: all .2s; margin-top: 10px; font-family: 'Inter', sans-serif;
+        }
+        .s-btn-submit:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
+        .s-btn-submit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        /* answer result */
+        .s-ans-result {
+            margin-top: 11px; padding: 11px 14px; border-radius: 8px;
+            font-size: 0.82rem; line-height: 1.5;
+        }
+        .s-ans-result.s-ar-correct { background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.3); color: #6ee7b7; }
+        .s-ans-result.s-ar-wrong   { background: rgba(239,68,68,.12);  border: 1px solid rgba(239,68,68,.3);  color: #fca5a5; }
+        .s-ans-result.s-ar-pending { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.3); color: #fcd34d; }
+        .s-ans-result strong { display: block; margin-bottom: 3px; }
+
+        /* course picker */
+        .s-pick-wrap {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; gap: 20px; padding: 40px;
+        }
+        .s-pick-wrap .icon { font-size: 3.5rem; }
+        .s-pick-wrap h3 { font-size: 1.1rem; font-weight: 700; }
+        .s-pick-wrap p { color: var(--muted); font-size: 0.88rem; }
+        .s-course-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px; width: 100%; max-width: 700px;
+        }
+        .s-course-btn {
+            background: var(--surface); border: 1.5px solid var(--border);
+            border-radius: 12px; padding: 18px 16px;
+            cursor: pointer; transition: all .2s; text-align: left;
+            font-family: 'Inter', sans-serif; color: var(--text);
+        }
+        .s-course-btn:hover { border-color: var(--primary); background: rgba(108,99,255,.07); }
+        .s-course-btn .s-c-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+        .s-course-btn .s-c-meta  { font-size: 0.72rem; color: var(--muted); }
+        @media (max-width: 900px) { .study-layout { grid-template-columns: 1fr; } .study-sidebar { max-height: 220px; } }
     </style>
 </head>
 <body>
@@ -482,6 +740,10 @@
                 </button>
                 <button class="nav-item" id="nav-users" onclick="switchPanel('users')">
                     <span class="icon">👥</span> Người dùng
+                </button>
+                <div class="nav-section" style="margin-top:12px">Học tập</div>
+                <button class="nav-item" id="nav-study" onclick="goToStudyPicker()">
+                    <span class="icon">🎓</span> Học bài
                 </button>
             </nav>
             <div class="sidebar-user">
@@ -587,6 +849,28 @@
                     </div>
                     <div id="usersTable">
                         <div class="loader"><div class="spinner"></div></div>
+                    </div>
+                </div>
+
+                <!-- ====== STUDY PANEL ====== -->
+                <div id="panel-study" class="panel panel-hidden">
+                    <div class="study-layout">
+                        <!-- Sidebar -->
+                        <aside class="study-sidebar" id="studySidebar">
+                            <div class="study-sidebar-head">📋 Danh sách bài học</div>
+                            <div id="studyLessonList"><div class="loader"><div class="spinner"></div></div></div>
+                        </aside>
+                        <!-- Main content -->
+                        <div class="study-main">
+                            <div class="study-content" id="studyContent">
+                                <div class="s-pick-wrap" id="studyPicker">
+                                    <div class="icon">🎓</div>
+                                    <h3>Chọn khóa học để bắt đầu học</h3>
+                                    <p>Hãy chọn một khóa học bên dưới để xem danh sách bài học</p>
+                                    <div class="s-course-grid" id="studyCoursePicker"><div class="loader"><div class="spinner"></div></div></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -896,11 +1180,14 @@
     // ─── Panel switching ──────────────────────────────────
     function switchPanel(name) {
         currentPanel = name;
-        ['dashboard','courses','lessons','users'].forEach(p => {
-            document.getElementById(`panel-${p}`).classList.toggle('panel-hidden', p !== name);
-            document.getElementById(`nav-${p}`).classList.toggle('active', p === name);
+        ['dashboard','courses','lessons','users','study'].forEach(p => {
+            const panel = document.getElementById(`panel-${p}`);
+            if (panel) panel.classList.toggle('panel-hidden', p !== name);
+            const nav = document.getElementById(`nav-${p}`);
+            if (nav) nav.classList.toggle('active', p === name);
         });
-        const titles = { dashboard: 'Dashboard', courses: 'Khóa học', lessons: 'Bài học', users: 'Người dùng' };
+
+        const titles = { dashboard: 'Dashboard', courses: 'Khóa học', lessons: 'Bài học', users: 'Người dùng', study: '🎓 Học bài' };
         document.getElementById('topbarTitle').textContent = titles[name] || name;
 
         const addBtn = document.getElementById('topbarAddBtn');
@@ -915,6 +1202,13 @@
         if (name === 'courses') loadCoursesPanel();
         if (name === 'lessons') loadLessonsPanel();
         if (name === 'users') loadUsersPanel();
+        if (name === 'study') initStudyPanel();
+    }
+
+    function goToStudyPicker() {
+        studyCourseId = null;
+        studyLessonId = null;
+        switchPanel('study');
     }
 
     function handleTopbarAdd() {
@@ -931,6 +1225,21 @@
             document.getElementById('sidebarAvatar').textContent = currentUser.fullName.charAt(0).toUpperCase();
             // Load users list once
             allUsers = await api('GET', '/api/users');
+
+            // Check if study URL params exist
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('panel') === 'study' || urlParams.get('courseId')) {
+                const cId = parseInt(urlParams.get('courseId'));
+                const lId = parseInt(urlParams.get('lessonId'));
+                if (cId) {
+                    await startStudyCourse(cId, lId || null);
+                    return;
+                } else {
+                    goToStudyPicker();
+                    return;
+                }
+            }
+
             loadDashboard();
         } catch (e) {
             doLogout();
@@ -1015,6 +1324,7 @@
                 </div>
                 <div class="course-desc">${escHtml(c.description)}</div>
                 <div class="course-actions">
+                    ${c.isPublished ? `<button class="btn btn-sm" style="background:linear-gradient(135deg,rgba(108,99,255,.25),rgba(164,139,255,.15));color:var(--primary-light);border:1px solid rgba(108,99,255,.4);font-weight:700" onclick="startStudyCourse(${c.id})">🎓 Học ngay</button>` : ''}
                     <button class="btn btn-ghost btn-sm" onclick="openLessonsForCourse(${c.id}, '${escHtml(c.title)}')">📖 Bài học</button>
                     <button class="btn btn-ghost btn-sm" onclick="openEditCourse(${c.id})">✏️ Sửa</button>
                     <button class="btn btn-sm" style="background:rgba(108,99,255,.12);color:var(--primary-light);border:1px solid rgba(108,99,255,.2)" onclick="togglePublish(${c.id})">${c.isPublished ? '⏸ Ẩn' : '▶ Xuất bản'}</button>
@@ -1140,6 +1450,7 @@
                     <div class="meta">${l.videoUrl ? '🎬 Có video' : '📝 Chỉ văn bản'} • ❓ <b style="color:var(--primary-light)">${l.questionCount || 0}</b> câu hỏi</div>
                 </div>
                 <span class="lesson-badge ${l.isPublished ? 'badge-published' : 'badge-draft'}">${l.isPublished ? 'Đã xuất bản' : 'Nháp'}</span>
+                <button class="btn btn-sm" style="background:linear-gradient(135deg,rgba(108,99,255,.25),rgba(164,139,255,.15));color:var(--primary-light);border:1px solid rgba(108,99,255,.4);font-weight:700" onclick="startStudyCourse(${courseId}, ${l.id})" title="Học bài này ngay">🎓 Học bài</button>
                 <button class="btn btn-sm" style="background:rgba(108,99,255,.15);color:var(--primary-light);border:1px solid rgba(108,99,255,.3)" onclick="openQuestionsModal(${l.id}, '${escHtml(l.title)}')" title="Quản lý câu hỏi hỏi đáp">❓ Hỏi đáp (${l.questionCount || 0})</button>
                 <button class="btn btn-sm btn-ghost" onclick="quickAutoGenerate(${l.id}, '${escHtml(l.title)}')" title="Tự động tạo câu hỏi từ nội dung bài học">⚡ Tạo câu hỏi</button>
                 <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditLesson(${l.id})" title="Chỉnh sửa">✏️</button>
@@ -1599,6 +1910,479 @@
             }
         });
     });
+
+    // ══════════════════════════════════════════════════════════
+    // ─── STUDY PANEL (Học bài trực tiếp trên trang chủ) ──────
+    // ══════════════════════════════════════════════════════════
+    let studyCourseId = null;
+    let studyLessonId = null;
+    let studyCourseData = null;
+    let studyLessonsList = [];
+    let studyProgress = {};
+    let studyAnswers = {};
+    let studySelectedOpts = {};
+
+    function embedYouTube(url) {
+        if (!url) return null;
+        const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+        if (m) return `https://www.youtube.com/embed/${m[1]}?rel=0&modestbranding=1`;
+        if (url.includes('/embed/')) return url;
+        return null;
+    }
+
+    async function initStudyPanel() {
+        if (studyCourseId) {
+            await loadStudyCourse(studyCourseId, studyLessonId);
+        } else {
+            await showStudyCoursePicker();
+        }
+    }
+
+    async function startStudyCourse(courseId, lessonId = null) {
+        studyCourseId = courseId;
+        studyLessonId = lessonId;
+        switchPanel('study');
+    }
+
+    async function showStudyCoursePicker() {
+        const sidebar = document.getElementById('studySidebar');
+        const content = document.getElementById('studyContent');
+        sidebar.innerHTML = `
+            <div class="study-sidebar-head">📋 Danh sách bài học</div>
+            <div style="padding:24px 16px;color:var(--muted);font-size:0.8rem;text-align:center">
+                Vui lòng chọn một khóa học bên phải để bắt đầu học.
+            </div>`;
+
+        content.innerHTML = `
+            <div class="s-pick-wrap" id="studyPicker">
+                <div class="icon">🎓</div>
+                <h3>Chọn khóa học để bắt đầu học</h3>
+                <p>Hãy chọn một khóa học bên dưới để xem danh sách bài học và tiến độ của bạn</p>
+                <div class="s-course-grid" id="studyCoursePicker">
+                    <div class="loader"><div class="spinner"></div></div>
+                </div>
+            </div>`;
+
+        try {
+            const courses = await api('GET', '/api/courses');
+            const published = (courses || []).filter(c => c.isPublished);
+            const grid = document.getElementById('studyCoursePicker');
+            if (!published.length) {
+                grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px">Chưa có khóa học nào được xuất bản.</div>`;
+                return;
+            }
+            grid.innerHTML = published.map(c => `
+                <button class="s-course-btn" onclick="startStudyCourse(${c.id})">
+                    <div class="s-c-title">📚 ${escHtml(c.title)}</div>
+                    <div class="s-c-meta">👤 ${escHtml(c.instructorName || 'Giảng viên')} • 📖 ${c.lessonCount || 0} bài học</div>
+                </button>
+            `).join('');
+        } catch(e) {
+            const grid = document.getElementById('studyCoursePicker');
+            if (grid) grid.innerHTML = `<div style="color:var(--red);text-align:center">${escHtml(e.message)}</div>`;
+        }
+    }
+
+    async function loadStudyCourse(courseId, targetLessonId = null) {
+        studyCourseId = courseId;
+        studyLessonId = targetLessonId;
+        const sidebar = document.getElementById('studySidebar');
+        const content = document.getElementById('studyContent');
+
+        sidebar.innerHTML = `
+            <div class="study-sidebar-head" style="display:flex;align-items:center;justify-content:space-between">
+                <span>📋 Danh sách bài học</span>
+                <button class="btn btn-ghost btn-sm" style="font-size:0.7rem;padding:2px 8px" onclick="goToStudyPicker()">Đổi khóa</button>
+            </div>
+            <div id="studyLessonList"><div class="loader"><div class="spinner"></div></div></div>`;
+        content.innerHTML = `<div class="loader"><div class="spinner"></div></div>`;
+
+        try {
+            const [course, lessonsList] = await Promise.all([
+                api('GET', `/api/courses/${courseId}`),
+                api('GET', `/api/lessons?courseId=${courseId}`)
+            ]);
+            studyCourseData = course;
+            studyLessonsList = (lessonsList || []).sort((a,b) => a.order - b.order);
+
+            // Load progress
+            await refreshStudyProgress();
+
+            renderStudySidebar();
+
+            const startId = studyLessonId || (studyLessonsList.length > 0 ? studyLessonsList[0].id : null);
+            if (startId) {
+                await selectStudyLesson(startId);
+            } else {
+                content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--muted)"><h3>Khóa học này chưa có bài học nào.</h3></div>`;
+            }
+        } catch(e) {
+            content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--red)">Lỗi tải khóa học: ${escHtml(e.message)}</div>`;
+        }
+    }
+
+    async function refreshStudyProgress() {
+        try {
+            const prog = await api('GET', `/api/progress?userId=${currentUser.id}&courseId=${studyCourseId}`);
+            studyProgress = {};
+            (prog.lessons || []).forEach(l => { studyProgress[l.id] = l.isCompleted; });
+            return prog;
+        } catch {
+            studyProgress = {};
+            return null;
+        }
+    }
+
+    function renderStudySidebar() {
+        const container = document.getElementById('studyLessonList');
+        if (!container) return;
+        if (!studyLessonsList.length) {
+            container.innerHTML = `<div style="padding:18px;color:var(--muted);font-size:0.8rem;text-align:center">Chưa có bài học nào</div>`;
+            return;
+        }
+        container.innerHTML = studyLessonsList.map(l => {
+            const isDone = studyProgress[l.id];
+            const isActive = studyLessonId === l.id;
+            return `
+                <div class="study-lesson-item ${isActive ? 'sl-active' : ''} ${isDone ? 'sl-done' : ''}" onclick="selectStudyLesson(${l.id})">
+                    <div class="sl-num">${isDone ? '✓' : l.order}</div>
+                    <div class="sl-info">
+                        <div class="sl-title">${escHtml(l.title)}</div>
+                        <div class="sl-meta">
+                            ${l.videoUrl ? '<span>🎬 Video</span>' : ''}
+                            ${l.questionCount > 0 ? `<span>❓ ${l.questionCount} câu</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="sl-check">${isDone ? '✅' : ''}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function selectStudyLesson(lessonId) {
+        if (!lessonId) return;
+        studyLessonId = lessonId;
+        studyAnswers = {};
+        studySelectedOpts = {};
+        renderStudySidebar();
+
+        const content = document.getElementById('studyContent');
+        content.innerHTML = `<div class="loader"><div class="spinner"></div></div>`;
+
+        try {
+            const [fullLesson, questions] = await Promise.all([
+                api('GET', `/api/lessons/${lessonId}`),
+                api('GET', `/api/lesson-questions?lessonId=${lessonId}&showCorrect=false`)
+            ]);
+
+            // Load user answers
+            const ansPromises = (questions || []).map(q =>
+                api('GET', `/api/lesson-questions/${q.id}/answers/user/${currentUser.id}`)
+                    .then(ans => ({ qId: q.id, ans }))
+                    .catch(() => ({ qId: q.id, ans: null }))
+            );
+            (await Promise.all(ansPromises)).forEach(({ qId, ans }) => {
+                if (ans) studyAnswers[qId] = ans;
+            });
+
+            renderStudyLessonContent(fullLesson, questions || []);
+        } catch(e) {
+            content.innerHTML = `<div style="text-align:center;padding:60px;color:var(--red)"><div style="font-size:2rem">⚠️</div><p style="margin-top:10px">${escHtml(e.message)}</p></div>`;
+        }
+    }
+
+    function renderStudyLessonContent(lesson, questions) {
+        const isDone = !!studyProgress[lesson.id];
+        const idx = studyLessonsList.findIndex(l => l.id === lesson.id);
+        const prevL = studyLessonsList[idx - 1];
+        const nextL = studyLessonsList[idx + 1];
+        const total = studyLessonsList.length;
+        const doneCount = Object.values(studyProgress).filter(Boolean).length;
+        const pct = total === 0 ? 0 : Math.round(doneCount / total * 100);
+        const embedUrl = embedYouTube(lesson.videoUrl);
+
+        const content = document.getElementById('studyContent');
+        content.innerHTML = `
+            <!-- Tiến độ -->
+            <div class="s-prog-panel">
+                <div class="s-prog-title">📊 Tiến độ học tập (${escHtml(studyCourseData?.title || 'Khóa học')})</div>
+                <div class="s-prog-bar-full">
+                    <div class="s-prog-bar-inner" id="studyProgFill" style="width:${pct}%"></div>
+                </div>
+                <div class="s-prog-nums">
+                    <div class="s-pstat green"><div class="sv" id="studyProgDone">${doneCount}</div><div class="sl">Đã hoàn thành</div></div>
+                    <div class="s-pstat"><div class="sv" id="studyProgTotal">${total}</div><div class="sl">Tổng bài học</div></div>
+                    <div class="s-pstat purple"><div class="sv" id="studyProgPct">${pct}%</div><div class="sl">Tỉ lệ hoàn thành</div></div>
+                </div>
+            </div>
+
+            <!-- Tiêu đề bài học -->
+            <div class="s-header">
+                <div class="s-order-badge">Bài ${lesson.order}</div>
+                <h2>${escHtml(lesson.title)}</h2>
+                <div class="s-meta-row">
+                    ${lesson.videoUrl ? '<span>🎬 Có video</span>' : ''}
+                    ${questions.length > 0 ? `<span>❓ ${questions.length} câu hỏi ôn tập</span>` : ''}
+                    ${isDone ? '<span style="color:var(--green)">✅ Đã hoàn thành</span>' : ''}
+                </div>
+            </div>
+
+            <!-- Video -->
+            ${embedUrl
+                ? `<div class="s-video"><iframe src="${embedUrl}" allowfullscreen title="${escHtml(lesson.title)}"></iframe></div>`
+                : lesson.videoUrl
+                    ? `<div class="s-video"><div class="s-no-video">🎬 Video liên kết: <a href="${escHtml(lesson.videoUrl)}" target="_blank" style="color:var(--primary-light)">${escHtml(lesson.videoUrl)}</a></div></div>`
+                    : ''}
+
+            <!-- Nội dung bài học -->
+            ${lesson.content ? `
+            <div class="s-card">
+                <div class="s-card-title">📄 Nội dung bài học</div>
+                <div class="s-body">${escHtml(lesson.content)}</div>
+            </div>` : ''}
+
+            <!-- Nút hoàn thành -->
+            <div class="s-complete-row" id="studyCompleteRow">
+                ${isDone
+                    ? `<button class="s-btn-complete s-done" id="studyDoneBtn">✅ Đã hoàn thành bài này</button>
+                       <button class="s-btn-undo" onclick="studyUndoDone(${lesson.id})">Đánh dấu lại</button>`
+                    : `<button class="s-btn-complete s-not-done" id="studyDoneBtn" onclick="studyMarkDone(${lesson.id})">✔ Đánh dấu hoàn thành</button>
+                       <span class="s-hint">Sau khi học xong bài này, nhấn để cập nhật tiến độ</span>`}
+            </div>
+
+            <!-- Chuyển bài trước / sau -->
+            <div class="s-nav-row">
+                <button class="s-btn-nav" onclick="selectStudyLesson(${prevL ? prevL.id : 0})" ${!prevL ? 'disabled' : ''}>
+                    ← ${prevL ? escHtml(prevL.title) : 'Bài trước'}
+                </button>
+                <button class="s-btn-nav s-next" onclick="selectStudyLesson(${nextL ? nextL.id : 0})" ${!nextL ? 'disabled' : ''}>
+                    ${nextL ? escHtml(nextL.title) : 'Bài tiếp theo'} →
+                </button>
+            </div>
+
+            <!-- Câu hỏi ôn tập -->
+            ${questions.length > 0 ? renderStudyQuestions(questions) : ''}
+        `;
+    }
+
+    function renderStudyQuestions(questions) {
+        return `
+        <div class="s-questions">
+            <div class="s-q-title">
+                ❓ Câu hỏi ôn tập <span class="s-q-badge">${questions.length} câu</span>
+            </div>
+            ${questions.map((q, idx) => renderOneStudyQuestion(q, idx)).join('')}
+        </div>`;
+    }
+
+    function renderOneStudyQuestion(q, idx) {
+        const existingAns = studyAnswers[q.id];
+        const isMC = q.type === 'MultipleChoice';
+        const letters = ['A','B','C','D','E','F'];
+
+        let bodyHtml = '';
+        if (isMC) {
+            const opts = q.options || [];
+            bodyHtml = `<div class="s-opts" id="sopts-${q.id}">` +
+                opts.map((opt, oi) => {
+                    let cls = 's-opt';
+                    let suffix = '';
+                    if (existingAns) {
+                        if (oi === existingAns.selectedOptionIndex) {
+                            cls += existingAns.isCorrect ? ' s-correct' : ' s-wrong';
+                            suffix = existingAns.isCorrect ? '✓' : '✕';
+                        }
+                    }
+                    return `<button class="${cls}" ${existingAns ? 'disabled' : ''} onclick="studyChooseOption(${q.id}, ${oi}, this)">
+                        <span class="s-opt-letter">${letters[oi] || oi}</span>
+                        <span>${escHtml(opt.text)}</span>
+                        <span class="s-opt-suf">${suffix}</span>
+                    </button>`;
+                }).join('') +
+            `</div>
+            <button class="s-btn-submit" id="ssubmit-${q.id}" onclick="studySubmitMCQ(${q.id})"
+                ${existingAns ? 'disabled style="display:none"' : 'disabled'}>
+                Nộp câu trả lời
+            </button>`;
+        } else {
+            bodyHtml = `
+            <textarea class="s-essay" id="sessay-${q.id}" placeholder="Nhập câu trả lời của bạn vào đây..." ${existingAns ? 'readonly' : ''}>${existingAns ? escHtml(existingAns.essayText || '') : ''}</textarea>
+            ${existingAns ? '' : `<button class="s-btn-submit" onclick="studySubmitEssay(${q.id})">Nộp bài tự luận</button>`}`;
+        }
+
+        let resultHtml = '';
+        let cardStatusClass = '';
+        if (existingAns) {
+            if (isMC) {
+                cardStatusClass = existingAns.isCorrect ? 'sq-correct' : 'sq-wrong';
+                resultHtml = existingAns.isCorrect
+                    ? `<div class="s-ans-result s-ar-correct"><strong>🎉 Chính xác!</strong>Bạn đã chọn đúng đáp án.</div>`
+                    : `<div class="s-ans-result s-ar-wrong"><strong>❌ Chưa chính xác</strong>Đáp án bạn chọn chưa đúng.</div>`;
+            } else {
+                cardStatusClass = existingAns.score !== null && existingAns.score !== undefined ? 'sq-correct' : 'sq-pending';
+                if (existingAns.score !== null && existingAns.score !== undefined) {
+                    resultHtml = `<div class="s-ans-result s-ar-correct"><strong>✅ Điểm: ${existingAns.score}/100</strong>${existingAns.instructorFeedback ? escHtml(existingAns.instructorFeedback) : 'Bài tự luận đã được chấm.'}</div>`;
+                } else {
+                    resultHtml = `<div class="s-ans-result s-ar-pending"><strong>⏳ Đã nộp bài tự luận</strong>Đang chờ giảng viên chấm điểm và phản hồi.</div>`;
+                }
+            }
+        }
+
+        return `
+        <div class="s-q-card ${cardStatusClass}" id="sqcard-${q.id}">
+            <div class="s-q-head">
+                <div class="s-q-num" id="sqnum-${q.id}">${idx + 1}</div>
+                <div class="s-q-text">${escHtml(q.questionText)}</div>
+                <span class="s-q-type ${isMC ? 's-q-mc-badge' : 's-q-es-badge'}">${isMC ? 'Trắc nghiệm' : 'Tự luận'}</span>
+            </div>
+            <div class="s-q-body" id="sqbody-${q.id}">${bodyHtml}${resultHtml}</div>
+        </div>`;
+    }
+
+    function studyChooseOption(qId, optIdx, btn) {
+        studySelectedOpts[qId] = optIdx;
+        const list = btn.closest('.s-opts');
+        list.querySelectorAll('.s-opt').forEach((b, i) => {
+            b.classList.toggle('s-selected', i === optIdx);
+        });
+        const subBtn = document.getElementById(`ssubmit-${qId}`);
+        if (subBtn) subBtn.disabled = false;
+    }
+
+    async function studySubmitMCQ(qId) {
+        const idx = studySelectedOpts[qId];
+        if (idx === undefined) return;
+        const btn = document.getElementById(`ssubmit-${qId}`);
+        if (btn) { btn.disabled = true; btn.textContent = 'Đang nộp...'; }
+        try {
+            const result = await api('POST', `/api/lesson-questions/${qId}/answer`, {
+                userId: currentUser.id, selectedOptionIndex: idx
+            });
+            studyAnswers[qId] = result;
+            const card = document.getElementById(`sqcard-${qId}`);
+            if (card) {
+                card.classList.remove('sq-correct', 'sq-wrong');
+                card.classList.add(result.isCorrect ? 'sq-correct' : 'sq-wrong');
+                card.querySelectorAll('.s-opt').forEach((b, i) => {
+                    b.disabled = true;
+                    if (i === idx) {
+                        b.classList.remove('s-selected');
+                        b.classList.add(result.isCorrect ? 's-correct' : 's-wrong');
+                        const suf = b.querySelector('.s-opt-suf');
+                        if (suf) suf.textContent = result.isCorrect ? '✓' : '✕';
+                    }
+                });
+            }
+            if (btn) btn.style.display = 'none';
+            const body = document.getElementById(`sqbody-${qId}`);
+            if (body) {
+                const prev = body.querySelector('.s-ans-result');
+                if (prev) prev.remove();
+                const resDiv = document.createElement('div');
+                resDiv.className = `s-ans-result ${result.isCorrect ? 's-ar-correct' : 's-ar-wrong'}`;
+                resDiv.innerHTML = result.isCorrect
+                    ? '<strong>🎉 Chính xác!</strong>Bạn đã chọn đúng đáp án.'
+                    : '<strong>❌ Chưa chính xác</strong>Đáp án bạn chọn chưa đúng.';
+                body.appendChild(resDiv);
+            }
+            toast(result.isCorrect ? 'Chính xác! 🎉' : 'Chưa đúng, hãy xem lại nhé!', result.isCorrect ? 'success' : 'error');
+        } catch(e) {
+            toast('Lỗi nộp bài: ' + e.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = 'Nộp câu trả lời'; }
+        }
+    }
+
+    async function studySubmitEssay(qId) {
+        const ta = document.getElementById(`sessay-${qId}`);
+        const txt = ta?.value?.trim();
+        if (!txt) { toast('Vui lòng nhập câu trả lời', 'error'); return; }
+        const btn = ta.nextElementSibling;
+        if (btn) { btn.disabled = true; btn.textContent = 'Đang nộp...'; }
+        try {
+            const result = await api('POST', `/api/lesson-questions/${qId}/answer`, {
+                userId: currentUser.id, essayText: txt
+            });
+            studyAnswers[qId] = result;
+            ta.readOnly = true;
+            if (btn) btn.remove();
+            const card = document.getElementById(`sqcard-${qId}`);
+            if (card) card.classList.add('sq-pending');
+            const body = document.getElementById(`sqbody-${qId}`);
+            if (body) {
+                const resDiv = document.createElement('div');
+                resDiv.className = 's-ans-result s-ar-pending';
+                resDiv.innerHTML = '<strong>⏳ Đã nộp bài tự luận</strong>Đang chờ giảng viên chấm điểm.';
+                body.appendChild(resDiv);
+            }
+            toast('Đã nộp bài tự luận thành công!', 'success');
+        } catch(e) {
+            toast('Lỗi: ' + e.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = 'Nộp bài tự luận'; }
+        }
+    }
+
+    async function studyMarkDone(lessonId) {
+        const btn = document.getElementById('studyDoneBtn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Đang lưu...'; }
+        try {
+            await api('POST', '/api/progress/complete', { userId: currentUser.id, lessonId });
+            toast('✅ Đã đánh dấu hoàn thành bài học!', 'success');
+            await refreshStudyProgress();
+            renderStudySidebar();
+
+            const total = studyLessonsList.length;
+            const doneCount = Object.values(studyProgress).filter(Boolean).length;
+            const pct = total === 0 ? 0 : Math.round(doneCount / total * 100);
+
+            const fill = document.getElementById('studyProgFill');
+            if (fill) fill.style.width = pct + '%';
+            const d = document.getElementById('studyProgDone');
+            if (d) d.textContent = doneCount;
+            const p = document.getElementById('studyProgPct');
+            if (p) p.textContent = pct + '%';
+
+            const row = document.getElementById('studyCompleteRow');
+            if (row) {
+                row.innerHTML = `
+                    <button class="s-btn-complete s-done" id="studyDoneBtn">✅ Đã hoàn thành bài này</button>
+                    <button class="s-btn-undo" onclick="studyUndoDone(${lessonId})">Đánh dấu lại</button>
+                `;
+            }
+        } catch(e) {
+            toast('Lỗi: ' + e.message, 'error');
+            if (btn) { btn.disabled = false; btn.textContent = '✔ Đánh dấu hoàn thành'; }
+        }
+    }
+
+    async function studyUndoDone(lessonId) {
+        try {
+            await api('POST', '/api/progress/incomplete', { userId: currentUser.id, lessonId });
+            toast('Đã bỏ đánh dấu hoàn thành', 'info');
+            await refreshStudyProgress();
+            renderStudySidebar();
+
+            const total = studyLessonsList.length;
+            const doneCount = Object.values(studyProgress).filter(Boolean).length;
+            const pct = total === 0 ? 0 : Math.round(doneCount / total * 100);
+
+            const fill = document.getElementById('studyProgFill');
+            if (fill) fill.style.width = pct + '%';
+            const d = document.getElementById('studyProgDone');
+            if (d) d.textContent = doneCount;
+            const p = document.getElementById('studyProgPct');
+            if (p) p.textContent = pct + '%';
+
+            const row = document.getElementById('studyCompleteRow');
+            if (row) {
+                row.innerHTML = `
+                    <button class="s-btn-complete s-not-done" id="studyDoneBtn" onclick="studyMarkDone(${lessonId})">✔ Đánh dấu hoàn thành</button>
+                    <span class="s-hint">Sau khi học xong bài này, nhấn để cập nhật tiến độ</span>
+                `;
+            }
+        } catch(e) {
+            toast('Lỗi: ' + e.message, 'error');
+        }
+    }
 
     // ─── Boot ─────────────────────────────────────────────
     init();

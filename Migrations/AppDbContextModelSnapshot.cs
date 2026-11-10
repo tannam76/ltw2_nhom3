@@ -80,6 +80,33 @@ namespace CourseManagement.Migrations
                     b.ToTable("Courses", (string)null);
                 });
 
+            modelBuilder.Entity("CourseManagement.Models.Enrollment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EnrolledAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("UserId", "CourseId")
+                        .IsUnique();
+
+                    b.ToTable("Enrollments", (string)null);
+                });
+
             modelBuilder.Entity("CourseManagement.Models.Lesson", b =>
                 {
                     b.Property<int>("Id")
@@ -114,6 +141,146 @@ namespace CourseManagement.Migrations
                         .IsUnique();
 
                     b.ToTable("Lessons", (string)null);
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonId");
+
+                    b.HasIndex("UserId", "LessonId")
+                        .IsUnique();
+
+                    b.ToTable("LessonProgresses", (string)null);
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("LessonId");
+
+                    b.ToTable("LessonQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonQuestionAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("EssayText")
+                        .HasMaxLength(10000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("GradedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InstructorFeedback")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("LessonQuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SelectedOptionIndex")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("LessonQuestionId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("LessonQuestionAnswers", (string)null);
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonQuestionOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LessonQuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonQuestionId");
+
+                    b.ToTable("LessonQuestionOptions", (string)null);
                 });
 
             modelBuilder.Entity("CourseManagement.Models.Product", b =>
@@ -280,6 +447,25 @@ namespace CourseManagement.Migrations
                     b.Navigation("Instructor");
                 });
 
+            modelBuilder.Entity("CourseManagement.Models.Enrollment", b =>
+                {
+                    b.HasOne("CourseManagement.Models.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CourseManagement.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CourseManagement.Models.Lesson", b =>
                 {
                     b.HasOne("CourseManagement.Models.Course", "Course")
@@ -289,6 +475,74 @@ namespace CourseManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonProgress", b =>
+                {
+                    b.HasOne("CourseManagement.Models.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CourseManagement.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonQuestion", b =>
+                {
+                    b.HasOne("CourseManagement.Models.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CourseManagement.Models.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("Lesson");
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonQuestionAnswer", b =>
+                {
+                    b.HasOne("CourseManagement.Models.LessonQuestion", "LessonQuestion")
+                        .WithMany("Answers")
+                        .HasForeignKey("LessonQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CourseManagement.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LessonQuestion");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonQuestionOption", b =>
+                {
+                    b.HasOne("CourseManagement.Models.LessonQuestion", "LessonQuestion")
+                        .WithMany("Options")
+                        .HasForeignKey("LessonQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LessonQuestion");
                 });
 
             modelBuilder.Entity("CourseManagement.Models.Quiz", b =>
@@ -332,6 +586,13 @@ namespace CourseManagement.Migrations
             modelBuilder.Entity("CourseManagement.Models.Lesson", b =>
                 {
                     b.Navigation("Quizzes");
+                });
+
+            modelBuilder.Entity("CourseManagement.Models.LessonQuestion", b =>
+                {
+                    b.Navigation("Answers");
+
+                    b.Navigation("Options");
                 });
 
             modelBuilder.Entity("CourseManagement.Models.Quiz", b =>

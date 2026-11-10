@@ -1,6 +1,25 @@
 @CourseManagement_HostAddress = http://localhost:5023
 
-GET {{CourseManagement_HostAddress}}/weatherforecast/
+### Test Error 400 (Bad Request)
+GET {{CourseManagement_HostAddress}}/api/errors/bad-request
+Accept: application/json
+
+###
+
+### Test Error 404 (Not Found)
+GET {{CourseManagement_HostAddress}}/api/errors/not-found
+Accept: application/json
+
+###
+
+### Test Error 401 (Unauthorized)
+GET {{CourseManagement_HostAddress}}/api/errors/unauthorized
+Accept: application/json
+
+###
+
+### Test Error 500 (Internal Server Error)
+GET {{CourseManagement_HostAddress}}/api/errors/server
 Accept: application/json
 
 ###

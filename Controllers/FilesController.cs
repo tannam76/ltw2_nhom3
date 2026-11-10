@@ -1,3 +1,4 @@
+using CourseManagement.Exceptions;
 using CourseManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using static CourseManagement.DTOs.File.FileUploadDbDto;
@@ -43,7 +44,7 @@ public class FilesController : ControllerBase
     {
         var fileDto = await _fileService.GetFileForDownloadAsync(id, cancellationToken);
         if (fileDto is null)
-            return NotFound(new { message = $"Không tìm thấy file với Id = {id}." });
+            throw new NotFoundException($"Không tìm thấy file với Id = {id}.");
 
         return File(fileDto.Content, fileDto.ContentType, fileDto.FileName);
     }
@@ -54,7 +55,7 @@ public class FilesController : ControllerBase
     {
         var fileDto = await _fileService.GetFileForDownloadAsync(id, cancellationToken);
         if (fileDto is null)
-            return NotFound(new { message = $"Không tìm thấy file với Id = {id}." });
+            throw new NotFoundException($"Không tìm thấy file với Id = {id}.");
 
         return File(fileDto.Content, fileDto.ContentType);
     }

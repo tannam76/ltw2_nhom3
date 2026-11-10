@@ -1,3 +1,4 @@
+using CourseManagement.Data;
 using CourseManagement.DTOs.Auth;
 using CourseManagement.DTOs.Common;
 using CourseManagement.DTOs.User;
@@ -61,5 +62,18 @@ public class UsersController(IUserService userService) : ControllerBase
         }
 
         return Ok(new { message = result.Message });
+    }
+
+    [HttpPost("seed")]
+    public async Task<IActionResult> SeedUsers([FromQuery] int count = 100, [FromServices] AppDbContext db = null!)
+    {
+        var seededCount = await DataSeeder.SeedUsersAsync(db, count);
+        return Ok(new
+        {
+            message = seededCount > 0
+                ? $"Đã tạo thành công {seededCount} người dùng mới."
+                : $"Cơ sở dữ liệu đã có đủ {count} người dùng trở lên.",
+            seededCount
+        });
     }
 }

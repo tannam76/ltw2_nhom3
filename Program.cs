@@ -180,6 +180,8 @@ try
                 });
                 ctx.SaveChanges();
             }
+
+            await DataSeeder.SeedUsersAsync(ctx, 100);
         }
         catch
         {

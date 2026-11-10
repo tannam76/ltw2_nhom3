@@ -23,3 +23,21 @@ GET {{CourseManagement_HostAddress}}/api/errors/server
 Accept: application/json
 
 ###
+
+### Seed 100 Users
+POST {{CourseManagement_HostAddress}}/api/users/seed?count=100
+Accept: application/json
+
+###
+
+### Get Users Paged (Trang 1, 10 user)
+GET {{CourseManagement_HostAddress}}/api/users?pageNumber=1&pageSize=10
+Accept: application/json
+
+###
+
+### Search Users (Tìm theo tên hoặc lọc theo Role)
+GET {{CourseManagement_HostAddress}}/api/users?searchTerm=Nguyễn&role=Student&sortBy=CreatedAt&isDescending=true
+Accept: application/json
+
+###

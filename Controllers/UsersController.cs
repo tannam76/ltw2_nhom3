@@ -1,7 +1,8 @@
 using CourseManagement.DTOs.Auth;
 using CourseManagement.DTOs.Common;
-using Microsoft.AspNetCore.Mvc;
+using CourseManagement.DTOs.User;
 using CourseManagement.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CourseManagement.Controllers;
 
@@ -9,20 +10,56 @@ namespace CourseManagement.Controllers;
 [Route("api/[controller]")]
 public class UsersController(IUserService userService) : ControllerBase
 {
-    // GET api/users  – danh sách users (dùng để chọn instructor)
     [HttpGet]
     public async Task<ActionResult<PagedResult<UserSummaryDto>>> GetAll(
         [FromQuery] UserQueryParameters queryParams)
     {
-        var result = await userService.GetAllAsync(queryParams);
-        return Ok(result);
+        var users = await userService.GetAllAsync(queryParams);
+        return Ok(users);
     }
 
-    // GET api/users/{id}
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<UserSummaryDto>> GetById(int id)
+    public async Task<ActionResult<UserDto>> GetById(int id)
     {
-        var user = await userService.GetUserByIdAsync(id);
-        return user is null ? NotFound() : Ok(user);
+        var user = await userService.GetByIdAsync(id);
+        return user is null
+            ? NotFound(new { message = $"Không tìm thấy người dùng có Id = {id}" })
+            : Ok(user);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto request)
+    {
+        var result = await userService.CreateAsync(request);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(new { message = result.Message });
+        }
+
+        return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result.Data);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto request)
+    {
+        var result = await userService.UpdateAsync(id, request);
+        if (!result.IsSuccess)
+        {
+            return NotFound(new { message = result.Message });
+        }
+
+        return Ok(new { message = result.Message });
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var result = await userService.DeleteAsync(id);
+        if (!result.IsSuccess)
+        {
+            return NotFound(new { message = result.Message });
+        }
+
+        return Ok(new { message = result.Message });
     }
 }

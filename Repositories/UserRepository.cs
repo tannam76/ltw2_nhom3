@@ -1,25 +1,27 @@
-using Microsoft.EntityFrameworkCore;
-using CourseManagement.DTOs.Common;
 using CourseManagement.Data;
+using CourseManagement.DTOs.Common;
 using CourseManagement.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseManagement.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(AppDbContext db) : IUserRepository
 {
     private const int MaxPageSize = 50;
-    private readonly AppDbContext _db;
 
-    public UserRepository(AppDbContext db)
+    public async Task<List<User>> GetAllAsync()
     {
-        _db = db;
+        return await db.Users
+            .AsNoTracking()
+            .OrderBy(user => user.FullName)
+            .ToListAsync();
     }
 
     public async Task<PagedResult<User>> GetAllAsync(UserQueryParameters queryParams)
     {
         var pageNumber = Math.Max(1, queryParams.PageNumber);
         var pageSize = Math.Clamp(queryParams.PageSize, 1, MaxPageSize);
-        var query = _db.Users.AsNoTracking().AsQueryable();
+        var query = db.Users.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(queryParams.SearchTerm))
         {
@@ -59,5 +61,35 @@ public class UserRepository : IUserRepository
                 .ToListAsync();
 
         return new PagedResult<User>(items, totalCount, pageNumber, pageSize);
+    }
+
+    public async Task<User?> GetByIdAsync(int id)
+    {
+        return await db.Users.FirstOrDefaultAsync(user => user.Id == id);
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await db.Users.FirstOrDefaultAsync(user => user.Email == email);
+    }
+
+    public async Task AddAsync(User user)
+    {
+        await db.Users.AddAsync(user);
+    }
+
+    public void Update(User user)
+    {
+        db.Users.Update(user);
+    }
+
+    public void Delete(User user)
+    {
+        db.Users.Remove(user);
+    }
+
+    public async Task<bool> SaveChangesAsync()
+    {
+        return await db.SaveChangesAsync() > 0;
     }
 }

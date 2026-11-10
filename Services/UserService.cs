@@ -5,6 +5,7 @@ using System.Text;
 using CourseManagement.DTOs.Auth;
 using CourseManagement.DTOs.Common;
 using CourseManagement.DTOs.User;
+using CourseManagement.Exceptions;
 using CourseManagement.Models;
 using CourseManagement.Repositories;
 using Microsoft.IdentityModel.Tokens;
@@ -45,7 +46,7 @@ public class UserService : IUserService
         var email = request.Email.Trim();
         if (await _userRepo.GetByEmailAsync(email) is not null)
         {
-            throw new InvalidOperationException("Email đã được sử dụng.");
+            throw new ConflictException("Email đã được sử dụng.");
         }
 
         var user = new User

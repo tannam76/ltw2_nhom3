@@ -34,4 +34,30 @@ namespace CourseManagement.Exceptions
         {
         }
     }
+
+    public class ConflictException : AppException
+    {
+        public ConflictException(string message)
+            : base(message, StatusCodes.Status409Conflict)
+        {
+        }
+    }
+}
+
+namespace ProjectAPIdemo.Exceptions
+{
+    public class AppException(string message, int statusCode = StatusCodes.Status400BadRequest)
+        : CourseManagement.Exceptions.AppException(message, statusCode);
+
+    public class NotFoundException(string message)
+        : CourseManagement.Exceptions.NotFoundException(message);
+
+    public class BadRequestException(string message)
+        : CourseManagement.Exceptions.BadRequestException(message);
+
+    public class UnauthorizedException(string message)
+        : CourseManagement.Exceptions.UnauthorizedException(message);
+
+    public class ConflictException(string message)
+        : CourseManagement.Exceptions.ConflictException(message);
 }

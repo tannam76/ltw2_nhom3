@@ -13,27 +13,15 @@ public class AuthController(IUserService userService) : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto request)
     {
-        try
-        {
-            return Ok(await userService.Register(request));
-        }
-        catch (InvalidOperationException exception)
-        {
-            return Conflict(new { message = exception.Message });
-        }
+        var result = await userService.Register(request);
+        return Ok(result);
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponseDto>> Login(LoginDto request)
     {
-        try
-        {
-            return Ok(await userService.Login(request));
-        }
-        catch (UnauthorizedAccessException exception)
-        {
-            return Unauthorized(new { message = exception.Message });
-        }
+        var result = await userService.Login(request);
+        return Ok(result);
     }
 
     [Authorize]

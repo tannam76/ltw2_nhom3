@@ -5,6 +5,7 @@ using CourseManagement.Middleware;
 using CourseManagement.Repositories;
 using CourseManagement.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -108,7 +109,28 @@ try
     });
 
     // 5. Đăng ký Dependency Injection cho Services & Repositories
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .ConfigureApiBehaviorOptions(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var errors = context.ModelState
+                    .Where(e => e.Value?.Errors.Count > 0)
+                    .SelectMany(e => e.Value!.Errors.Select(x => string.IsNullOrWhiteSpace(x.ErrorMessage) ? "Dữ liệu không đúng định dạng." : x.ErrorMessage))
+                    .ToList();
+
+                var response = new CourseManagement.DTOs.Common.ErrorResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Dữ liệu gửi lên không hợp lệ.",
+                    Detail = string.Join("; ", errors),
+                    TraceId = context.HttpContext.TraceIdentifier,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                return new BadRequestObjectResult(response);
+            };
+        });
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddScoped<IUserRepository, UserRepository>();

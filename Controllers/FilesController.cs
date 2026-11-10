@@ -22,15 +22,8 @@ public class FilesController : ControllerBase
         [FromForm] UploadFileDto dto,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await _fileService.UploadFileAsync(dto.File, cancellationToken);
-            return Ok(result);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var result = await _fileService.UploadFileAsync(dto.File, cancellationToken);
+        return Ok(result);
     }
 
     // POST: api/files/upload-batch - Upload nhiều file cùng lúc
@@ -40,15 +33,8 @@ public class FilesController : ControllerBase
         [FromForm] UploadFilesDto dto,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var results = await _fileService.UploadFilesAsync(dto.Files, cancellationToken);
-            return Ok(results);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        var results = await _fileService.UploadFilesAsync(dto.Files, cancellationToken);
+        return Ok(results);
     }
 
     // GET: api/files/{id}/download - Tải file về máy (Content-Disposition: attachment)

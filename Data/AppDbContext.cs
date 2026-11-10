@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
+    public DbSet<Question> Questions { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Course> Courses { get; set; }
@@ -17,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<Quiz> Quizzes { get; set; }
     public DbSet<QuizQuestion> QuizQuestions { get; set; }
     public DbSet<QuizOption> QuizOptions { get; set; }
+    public DbSet<StoredFile> StoredFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -105,5 +107,14 @@ public class AppDbContext : DbContext
                 .HasForeignKey(option => option.QuizQuestionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<StoredFile>(entity =>
+        {
+            entity.ToTable("StoredFiles");
+            entity.HasKey(f => f.Id);
+            entity.Property(f => f.FileName).IsRequired().HasMaxLength(255);
+            entity.Property(f => f.ContentType).IsRequired().HasMaxLength(100);
+            entity.Property(f => f.Content).IsRequired();
+        });
     }
-}
+}

@@ -2,16 +2,36 @@ using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using CourseManagement.Data;
 using CourseManagement.DTOs.Auth;
+using CourseManagement.DTOs.Common;
 using CourseManagement.Models;
+using CourseManagement.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseManagement.Services;
 
-public class UserService(AppDbContext db) : IUserService
+public class UserService(AppDbContext db, IUserRepository userRepository) : IUserService
 {
 	// Lưu trữ token đơn giản trên bộ nhớ (chỉ dùng cho mục đích demo/học tập)
 	// Ánh xạ AccessToken -> UserId
 	private static readonly ConcurrentDictionary<string, int> sessions = new(StringComparer.Ordinal);
+
+	public async Task<PagedResult<UserSummaryDto>> GetAllAsync(UserQueryParameters queryParams)
+	{
+		var pagedUsers = await userRepository.GetAllAsync(queryParams);
+		var mappedItems = pagedUsers.Items.Select(ToSummary).ToList();
+
+		return new PagedResult<UserSummaryDto>(
+			mappedItems,
+			pagedUsers.TotalCount,
+			pagedUsers.PageNumber,
+			pagedUsers.PageSize);
+	}
+
+	public async Task<UserSummaryDto?> GetUserByIdAsync(int id)
+	{
+		var user = await db.Users.FindAsync(id);
+		return user is null ? null : ToSummary(user);
+	}
 
 	public async Task<AuthResponseDto> Register(RegisterDto request)
 	{
@@ -82,7 +102,7 @@ public class UserService(AppDbContext db) : IUserService
 		Role = user.Role
 	};
 
-	private static string HashPassword(string password)
+	public static string HashPassword(string password)
 	{
 		var salt = RandomNumberGenerator.GetBytes(16);
 		var hash = Rfc2898DeriveBytes.Pbkdf2(password, salt, 100_000, HashAlgorithmName.SHA256, 32);

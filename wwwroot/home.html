@@ -668,6 +668,21 @@
         return data;
     }
 
+    async function fetchAllUsers() {
+        const users = [];
+        let pageNumber = 1;
+        let totalPages = 1;
+
+        while (pageNumber <= totalPages) {
+            const result = await api('GET', `/api/users?pageNumber=${pageNumber}&pageSize=50`);
+            users.push(...result.items);
+            totalPages = result.totalPages;
+            pageNumber++;
+        }
+
+        return users;
+    }
+
     // ─── Toast ────────────────────────────────────────────
     function toast(msg, type = 'info') {
         const el = document.createElement('div');
@@ -715,7 +730,7 @@
             document.getElementById('sidebarRole').textContent = currentUser.role;
             document.getElementById('sidebarAvatar').textContent = currentUser.fullName.charAt(0).toUpperCase();
             // Load users list once
-            allUsers = await api('GET', '/api/users');
+            allUsers = await fetchAllUsers();
             loadDashboard();
         } catch (e) {
             doLogout();
@@ -1027,7 +1042,7 @@
     async function loadUsersPanel() {
         document.getElementById('usersTable').innerHTML = `<div class="loader"><div class="spinner"></div></div>`;
         try {
-            const users = allUsers.length ? allUsers : await api('GET', '/api/users');
+            const users = allUsers.length ? allUsers : await fetchAllUsers();
             allUsers = users;
             if (!users.length) {
                 document.getElementById('usersTable').innerHTML = emptyState('👥', 'Chưa có người dùng', '');
